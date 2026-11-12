@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE DOT — Reel 2026</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0B0B0F}
+  #bg{position:fixed;inset:0;z-index:0;background:#0B0B0F}
+  .stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+  #scene{z-index:1;overflow:hidden}
+  #irisL{z-index:2}
+  #tiles{z-index:3}
+  #hud{z-index:4;pointer-events:none;opacity:.6}
+  .fixed{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  .abs{position:absolute;left:0;top:0}
+  .dot{position:absolute;left:0;top:0;border-radius:50%;will-change:transform}
+  .display{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;text-transform:uppercase;line-height:1;white-space:pre}
+  .mono{font-family:Menlo,Consolas,monospace;font-weight:400;font-size:14px;line-height:1;letter-spacing:.2em;text-transform:uppercase;white-space:pre}
+  .row{position:absolute;display:flex;align-items:flex-start}
+  .box{display:block;flex:0 0 auto;min-width:0;clip-path:inset(-50% -50% 0 -50%)}
+  .box.e{clip-path:inset(-50% -50% -50% 0)}
+  .g{display:inline-block;will-change:transform}
+  .ring{position:absolute;box-sizing:border-box;border-radius:50%;border:3px solid #F2EEE6}
+  .shock{position:absolute;left:0;top:0;box-sizing:border-box;border-radius:50%;border:2px solid #F2EEE6}
+  .tile{position:absolute;transform-origin:50% 0;backface-visibility:visible}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+
+<!-- ───────── SCENE STAGE ───────── -->
+<div id="scene" class="stage">
+  <!-- Scene 1 / 2 -->
+  <div id="s12" class="abs">
+    <div class="shock" id="sh0"></div>
+    <div class="shock" id="sh1"></div>
+    <div class="shock" id="sh2"></div>
+    <div id="clones"></div>
+    <div class="dot" id="D" style="width:48px;height:48px;background:#FF4A1C"></div>
+  </div>
+
+  <!-- Scene 3 -->
+  <div id="s3" class="abs" style="width:1600px;height:900px">
+    <div id="row3" class="row display" style="left:0;top:320px;width:1600px;height:260px;justify-content:center;font-size:260px;letter-spacing:-0.04em;color:#0B0B0F"></div>
+    <div id="ul" class="abs" style="height:12px;background:#F2EEE6;transform-origin:0 50%"></div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div id="s4" class="abs" style="left:800px;top:450px;width:0;height:0;perspective:1400px">
+    <div id="gyro" class="abs" style="width:0;height:0;transform-style:preserve-3d"></div>
+  </div>
+
+  <!-- Scene 5 -->
+  <div id="s5" class="abs" style="width:1600px;height:900px">
+    <div id="rule" class="abs" style="background:#F2EEE6"></div>
+    <div id="title" class="row display" style="left:240px;top:395px;height:150px;font-size:150px;letter-spacing:-0.03em;color:#F2EEE6"></div>
+    <div class="dot" id="P" style="width:36px;height:36px;background:#FF4A1C"></div>
+    <div id="sub" class="mono abs" style="font-size:16px;left:240px;top:590px;color:#F2EEE6">MOTION DESIGN REEL — AVAILABLE NOW</div>
+  </div>
+</div>
+
+<!-- Iris (window level so it can flood any aspect ratio) -->
+<div id="irisL" class="fixed"><div id="iris" class="dot" style="background:#FF4A1C"></div></div>
+
+<!-- Tiles (window level, above scene 3, below HUD) -->
+<div id="tiles" class="fixed"></div>
+
+<!-- ───────── HUD ───────── -->
+<div id="hud" class="stage">
+  <div class="mono abs" id="hTL" style="left:48px;top:48px">REEL 2026</div>
+  <div class="mono abs" id="hTC" style="left:auto;right:48px;top:48px;margin-right:-0.2em">00:00</div>
+  <div id="labels"></div>
+  <div class="abs" style="left:1392px;top:850px;width:160px;height:2px;background:currentColor;opacity:.18" id="hTrack"></div>
+  <div class="abs" id="hBar" style="left:1392px;top:850px;width:160px;height:2px;transform-origin:0 50%"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const INK = '#0B0B0F', BONE = '#F2EEE6', VERM = '#FF4A1C', BLUE = '#2B4BFF', ACID = '#D6FF3D';
+const DISPLAY_FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+const LOOP = 15000;
+
+/* ───────── easing: cubic-bezier solver ───────── */
+function bez(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = u => ((ax * u + bx) * u + cx) * u;
+  const sy = u => ((ay * u + by) * u + cy) * u;
+  const dx = u => (3 * ax * u + 2 * bx) * u + cx;
+  return x => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let u = x;
+    for (let i = 0; i < 8; i++) {
+      const e = sx(u) - x;
+      if (Math.abs(e) < 1e-7) return sy(u);
+      const d = dx(u);
+      if (Math.abs(d) < 1e-6) break;
+      u -= e / d;
+    }
+    let lo = 0, hi = 1; u = x;
+    for (let i = 0; i < 40; i++) {
+      const v = sx(u);
+      if (Math.abs(v - x) < 1e-7) break;
+      if (v < x) lo = u; else hi = u;
+      u = (lo + hi) / 2;
+    }
+    return sy(u);
+  };
+}
+const E = {
+  OUT: bez(.16, 1, .3, 1), IN: bez(.7, 0, .84, 0), INOUT: bez(.87, 0, .13, 1),
+  BACK: bez(.34, 1.56, .64, 1), UP: bez(.33, 1, .68, 1), DOWN: bez(.32, 0, .67, 0), LIN: x => x
+};
+const clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
+const lerp = (a, b, p) => a + (b - a) * p;
+/* eased progress of a tween starting @s lasting d ms */
+const P = (t, s, d, e) => e(clamp((t - s) / d));
+function squash(t, T, sx, sy, outD = 70, backD = 110) {
+  if (t < T || t > T + outD + backD) return null;
+  if (t < T + outD) { const p = E.OUT((t - T) / outD); return [lerp(1, sx, p), lerp(1, sy, p)]; }
+  const p = E.BACK((t - T - outD) / backD); return [lerp(sx, 1, p), lerp(sy, 1, p)];
+}
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mix(a, b, p) { const A = hexRgb(a), B = hexRgb(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], p))).join(',')})`; }
+
+const $ = id => document.getElementById(id);
+const show = (el, on) => { if (el._on !== on) { el._on = on; el.classList.toggle('hide', !on); } };
+
+/* ───────── build DOM ───────── */
+// Scene 1/2 clones (eight Bone dots; index 4 is D itself)
+const clones = [];
+for (let i = 0; i < 9; i++) {
+  if (i === 4) { clones.push(null); continue; }
+  const c = document.createElement('div');
+  c.className = 'dot';
+  c.style.cssText = `width:48px;height:48px;background:${BONE}`;
+  $('clones').appendChild(c);
+  clones.push(c);
+}
+const shocks = [$('sh0'), $('sh1'), $('sh2')];
+
+// Scene 3 row "EMOTION"
+const row3 = $('row3');
+const s3 = [];
+'EMOTION'.split('').forEach((ch, i) => {
+  const b = document.createElement('span'); b.className = 'box' + (i === 0 ? ' e' : '');
+  const g = document.createElement('span'); g.className = 'g'; g.textContent = ch;
+  if (i === 0) g.style.color = BONE;
+  b.appendChild(g); row3.appendChild(b); s3.push({ b, g });
+});
+
+// Scene 4 gyroscope
+const gyro = $('gyro');
+const RINGS = [
+  { d: 220, col: BONE }, { d: 340, col: BONE }, { d: 460, col: ACID }
+].map((r, i) => {
+  const el = document.createElement('div');
+  el.className = 'ring';
+  el.style.cssText = `width:${r.d}px;height:${r.d}px;left:${-r.d / 2}px;top:${-r.d / 2}px;border-color:${r.col}`;
+  gyro.appendChild(el);
+  const sat = document.createElement('div');
+  sat.className = 'dot';
+  sat.style.cssText = `width:14px;height:14px;left:-7px;top:-7px;background:${VERM}`;
+  gyro.appendChild(sat);
+  return Object.assign(r, { el, sat, rr: r.d / 2 - 1.5 });
+});
+const D4 = document.createElement('div');
+D4.className = 'dot';
+D4.style.cssText = `width:48px;height:48px;left:-24px;top:-24px;background:${VERM}`;
+gyro.appendChild(D4);
+
+// Scene 5 title
+const title = $('title');
+const s5 = [];
+'MADE TO MOVE'.split('').forEach(ch => {
+  const b = document.createElement('span'); b.className = 'box';
+  const g = document.createElement('span'); g.className = 'g'; g.textContent = ch;
+  b.appendChild(g); title.appendChild(b); s5.push({ b, g });
+});
+
+// Tiles 8 × 4
+const tilesL = $('tiles');
+const tiles = [];
+for (let r = 0; r < 4; r++) for (let c = 0; c < 8; c++) {
+  const el = document.createElement('div');
+  el.className = 'tile';
+  el.style.cssText = `left:${c * 12.5}%;top:${r * 25}%;width:calc(12.5% + 1px);height:calc(25% + 1px);background:${BLUE}`;
+  tilesL.appendChild(el);
+  tiles.push({ el, c, r });
+}
+
+// HUD labels
+const LABELS = [
+  [0, '01 — WEIGHT'], [2500, '02 — RHYTHM'], [5950, '03 — VOICE'],
+  [9400, '04 — DEPTH'], [11900, '05 — SIGNATURE']
+];
+const LABEL_END = 14600; // last label bows out with the outro so 01 can re-enter at the loop
+const labelEls = LABELS.map(([, txt]) => {
+  const el = document.createElement('div');
+  el.className = 'mono abs';
+  el.style.cssText = 'left:48px;top:838px';
+  el.textContent = txt;
+  $('labels').appendChild(el);
+  return el;
+});
+
+/* ───────── measurement ───────── */
+const M = {};
+function baselineOf(px) {
+  const d = document.createElement('div');
+  d.className = 'display';
+  d.style.cssText = `position:absolute;visibility:hidden;left:0;top:0;font-size:${px}px`;
+  d.innerHTML = 'X<span style="display:inline-block;width:0;height:0;vertical-align:baseline"></span>';
+  $('scene').appendChild(d);
+  const b = d.lastChild.offsetTop;
+  d.remove();
+  return b;
+}
+function measure() {
+  const ctx = document.createElement('canvas').getContext('2d');
+  // Scene 3
+  ctx.font = `700 260px ${DISPLAY_FONT}`;
+  const ws = s3.map(o => o.g.offsetWidth);
+  M.eW = ws[0];
+  const total = ws.reduce((a, b) => a + b, 0);
+  const rowL = 800 - total / 2;
+  const mE = ctx.measureText('E'), mN = ctx.measureText('N');
+  const inkL = rowL - mE.actualBoundingBoxLeft;
+  const inkR = rowL + total - ws[6] + mN.actualBoundingBoxRight;
+  const base3 = 320 + baselineOf(260);
+  Object.assign($('ul').style, { left: inkL + 'px', top: (base3 + 24) + 'px', width: (inkR - inkL) + 'px' });
+  // Scene 5
+  ctx.font = `700 150px ${DISPLAY_FONT}`;
+  const last = s5[s5.length - 1].b;
+  const lastL = last.offsetLeft; // relative to title row
+  const inkE = ctx.measureText('E').actualBoundingBoxRight;
+  M.pCx = 240 + lastL + inkE + 14 + 18;
+  M.base5 = 395 + baselineOf(150);
+  M.pRest = M.base5 - 18;
+}
+
+/* ───────── layout / scaling ───────── */
+let S = 1, W = 0, H = 0;
+function resize() {
+  W = innerWidth; H = innerHeight;
+  S = Math.min(W / 1600, H / 900);
+  const ox = (W - 1600 * S) / 2, oy = (H - 900 * S) / 2;
+  const tf = `translate(${ox}px,${oy}px) scale(${S})`;
+  $('scene').style.transform = tf;
+  $('hud').style.transform = tf;
+  tilesL.style.perspective = (1200 * S) + 'px';
+  const ir = $('iris').style;
+  ir.width = ir.height = (48 * S) + 'px';
+  ir.left = (W / 2 - 24 * S) + 'px';
+  ir.top = (H / 2 - 24 * S) + 'px';
+}
+
+/* ───────── helpers ───────── */
+function placeDot(el, cx, cy, r, sx = 1, sy = 1, origin = '50% 100%') {
+  el.style.transformOrigin = origin;
+  el.style.transform = `translate(${cx - r}px,${cy - r}px) scale(${sx},${sy})`;
+}
+function waveY(t, i) {
+  const tau = t - (2500 + 75 * i);
+  if (tau <= 0 || tau >= 2000) return [450, 0];
+  const ph = 2 * Math.PI * tau / 1000;
+  const env = Math.min(1, tau / 160, (2000 - tau) / 160);
+  return [450 - 140 * Math.sin(ph), 0.2 * Math.abs(Math.cos(ph)) * env];
+}
+
+/* ───────── scenes ───────── */
+function scene12(t) {
+  const on = t < 5450;
+  show($('s12'), on);
+  if (!on) return;
+  // D — main protagonist
+  const D = $('D');
+  let cy;
+  if (t < 450) cy = lerp(-60, 450, P(t, 0, 450, E.IN));
+  else if (t < 520) cy = 450;
+  else if (t < 820) cy = lerp(450, 300, P(t, 520, 300, E.UP));
+  else if (t < 1120) cy = lerp(300, 450, P(t, 820, 300, E.DOWN));
+  else if (t < 1190) cy = 450;
+  else if (t < 1390) cy = lerp(450, 400, P(t, 1190, 200, E.UP));
+  else if (t < 1590) cy = lerp(400, 450, P(t, 1390, 200, E.DOWN));
+  else cy = 450;
+  let sx = 1, sy = 1, origin = '50% 100%';
+  const sq = squash(t, 450, 1.45, .55) || squash(t, 1120, 1.25, .75) || squash(t, 1590, 1.1, .9);
+  if (sq) [sx, sy] = sq;
+  if (t >= 2500) {
+    const [y, k] = waveY(t, 4);
+    cy = y; sx = 1 - k * .5; sy = 1 + k; origin = '50% 50%';
+  }
+  placeDot(D, 800, cy, 24, sx, sy, origin);
+
+  // shock rings
+  [[450, 240], [1120, 140], [1590, 80]].forEach(([T, dMax], k) => {
+    const el = shocks[k];
+    const a = t >= T && t < T + 600;
+    show(el, a);
+    if (!a) return;
+    const p = P(t, T, 600, E.OUT);
+    const d = lerp(48, dMax, p);
+    el.style.width = el.style.height = d + 'px';
+    el.style.transform = `translate(${800 - d / 2}px,${474 - d / 2}px)`;
+    el.style.opacity = .8 * (1 - p);
+  });
+
+  // clones
+  const cOn = t >= 1800;
+  show($('clones'), cOn);
+  if (!cOn) return;
+  for (let i = 0; i < 9; i++) {
+    if (i === 4) continue;
+    const dist = Math.abs(i - 4);
+    let cx = lerp(800, 320 + 120 * i, P(t, 1800 + 30 * dist, 600, E.OUT));
+    const pc = P(t, 5100, 350, E.IN);
+    cx = lerp(cx, 800, pc);
+    const [y, k] = waveY(t, i);
+    let csx = 1 - k * .5, csy = 1 + k;
+    // rushing collapse: stretch along travel, proportional to distance
+    const st = pc * (1 - pc) * 4 * (dist / 4);
+    csx *= 1 + .9 * st; csy *= 1 - .3 * st;
+    placeDot(clones[i], cx, y, 24, csx, csy, '50% 50%');
+  }
+}
+
+function iris(t) {
+  const on = t >= 5450 && t < 5950;
+  show($('irisL'), on);
+  if (!on) return;
+  const need = Math.hypot(W, H) / (48 * S) * 1.04;
+  const big = Math.max(64, need);
+  const s = t < 5550 ? lerp(1, .6, P(t, 5450, 100, E.IN)) : lerp(.6, big, P(t, 5550, 400, E.INOUT));
+  $('iris').style.transform = `scale(${s})`;
+}
+
+function scene3(t) {
+  const on = t >= 5950 && t < 9400;
+  show($('s3'), on);
+  if (!on) return;
+  for (let k = 1; k <= 6; k++) {
+    const p = P(t, 5950 + 35 * (k - 1), 500, E.OUT);
+    s3[k].g.style.transform = `translateY(${(1 - p) * 286}px)`;
+  }
+  // E shove — real layout push, row stays centred
+  const p = P(t, 7000, 550, E.BACK);
+  s3[0].b.style.width = Math.max(0, M.eW * p) + 'px';
+  s3[0].g.style.transform = `translateX(${-(1 - p) * M.eW}px)`;
+  $('ul').style.transform = `scaleX(${P(t, 7500, 600, E.INOUT)})`;
+}
+
+function tilesFn(t) {
+  const on = t >= 8500 && t < 9400;
+  show(tilesL, on);
+  if (!on) return;
+  for (const o of tiles) {
+    const p = P(t, 8500 + 40 * (o.c + o.r), 500, E.OUT);
+    const vis = p > 0.0005;
+    o.el.style.visibility = vis ? 'visible' : 'hidden';
+    if (!vis) continue;
+    const a = -90 * (1 - p);
+    o.el.style.transform = `rotateX(${a}deg)`;
+    o.el.style.background = mix('#0F1A66', BLUE, Math.cos(a * Math.PI / 180) ** .7);
+  }
+}
+
+function scene4(t) {
+  const on = t >= 9400 && t < 11900;
+  show($('s4'), on);
+  if (!on) return;
+  const e = t - 9400;
+  const angles = [360 * e / 1800, 360 * e / 2400, -360 * e / 3000];
+  RINGS.forEach((r, i) => {
+    const s = P(t, 9400 + 100 * i, 700, E.BACK);
+    let tf;
+    if (i === 0) tf = `scale(${s}) rotateX(${angles[0]}deg)`;
+    else if (i === 1) tf = `scale(${s}) rotateY(${angles[1]}deg)`;
+    else tf = `scale(${s}) rotateZ(45deg) rotateX(${angles[2]}deg)`;
+    r.el.style.transform = tf;
+    // satellite: true 3D point on the rim, camera-facing disc
+    const m = new DOMMatrix(tf);
+    const pt = i === 1 ? m.transformPoint(new DOMPoint(r.rr, 0, 0)) : m.transformPoint(new DOMPoint(0, -r.rr, 0));
+    r.sat.style.transform = `translate3d(${pt.x}px,${pt.y}px,${pt.z}px) scale(${s})`;
+  });
+  D4.style.transform = `scale(${P(t, 9500, 400, E.BACK)})`;
+  gyro.style.transform = `scaleY(${lerp(1, .01, P(t, 11500, 400, E.IN))})`;
+}
+
+function scene5(t) {
+  const on = t >= 11900;
+  show($('s5'), on);
+  if (!on) return;
+  // Rule — born from the flattened gyro
+  const pr = P(t, 11900, 500, E.INOUT);
+  const w = lerp(460, 1120, pr), th = lerp(3, 2, pr), y = lerp(450, 560, pr);
+  const rs = $('rule').style;
+  rs.width = w + 'px'; rs.height = th + 'px';
+  rs.left = (800 - w / 2) + 'px'; rs.top = (y - th / 2) + 'px';
+  rs.transformOrigin = '100% 50%';
+  rs.transform = `scaleX(${1 - P(t, 14450, 400, E.INOUT)})`;
+
+  // Title letters
+  const n = s5.length;
+  s5.forEach((o, i) => {
+    let ty = (1 - P(t, 12200 + 30 * i, 600, E.OUT)) * 165;
+    const rsT = 13350 + 25 * (n - 1 - i);
+    if (t >= rsT && t < rsT + 150) ty -= 14 * P(t, rsT, 150, E.UP);
+    else if (t >= rsT + 150 && t < rsT + 300) ty -= 14 * (1 - P(t, rsT + 150, 150, E.DOWN));
+    ty += P(t, 14400 + 15 * i, 300, E.IN) * 165;
+    o.g.style.transform = `translateY(${ty}px)`;
+  });
+
+  // Period — the dot lands as a full stop
+  const Pd = $('P');
+  const pOn = t >= 12900 && t < 14960;
+  Pd.style.visibility = pOn ? 'visible' : 'hidden';
+  if (pOn) {
+    const rest = M.pRest;
+    let cy = rest, sx = 1, sy = 1;
+    if (t < 13350) cy = lerp(-60, rest, P(t, 12900, 450, E.IN));
+    else if (t >= 13420 && t < 13570) cy = lerp(rest, rest - 60, P(t, 13420, 150, E.UP));
+    else if (t >= 13570 && t < 13720) cy = lerp(rest - 60, rest, P(t, 13570, 150, E.DOWN));
+    const sq = squash(t, 13350, 1.4, .6) || squash(t, 13720, 1.12, .88, 60, 110);
+    if (sq) [sx, sy] = sq;
+    if (t >= 14500 && t < 14600) {
+      const p = P(t, 14500, 100, E.OUT); sx = lerp(1, 1.3, p); sy = lerp(1, .7, p);
+    } else if (t >= 14600) {
+      const p = P(t, 14600, 350, E.IN);
+      sx = lerp(1.3, .85, p); sy = lerp(.7, 1.2, p);
+      cy = lerp(rest, -60, p);
+    }
+    placeDot(Pd, M.pCx, cy, 18, sx, sy, '50% 100%');
+  }
+
+  // Subline
+  const ps = P(t, 13600, 500, E.OUT);
+  const sb = $('sub').style;
+  sb.opacity = .6 * ps * (1 - P(t, 14400, 200, E.IN));
+  sb.transform = `translateY(${12 * (1 - ps)}px)`;
+}
+
+function hud(t) {
+  const ink = t >= 5750 && t < 8900;
+  $('hud').style.color = ink ? INK : BONE;
+  $('hBar').style.background = ink ? INK : BONE;
+  const ss = Math.floor(t / 1000), ff = Math.floor((t % 1000) * 30 / 1000);
+  const tc = String(ss).padStart(2, '0') + ':' + String(ff).padStart(2, '0');
+  if ($('hTC')._v !== tc) { $('hTC').textContent = tc; $('hTC')._v = tc; }
+  $('hBar').style.transform = `scaleX(${t / LOOP})`;
+  LABELS.forEach(([T], i) => {
+    const end = i < LABELS.length - 1 ? LABELS[i + 1][0] : LABEL_END;
+    const el = labelEls[i];
+    let op = 0, y = 16;
+    if (t >= T && t < end) {
+      const p = P(t, T, 300, E.OUT); op = p; y = 16 * (1 - p);
+    } else if (t >= end && t < end + 200) {
+      const p = P(t, end, 200, E.IN); op = 1 - p; y = -16 * p;
+    }
+    el.style.opacity = op;
+    el.style.transform = `translateY(${y}px)`;
+  });
+}
+
+function render(t) {
+  $('bg').style.background =
+    t < 5950 ? INK : t < 9400 ? VERM : t < 11900 ? BLUE : INK;
+  scene12(t); iris(t); scene3(t); tilesFn(t); scene4(t); scene5(t); hud(t);
+}
+
+/* ───────── master clock ───────── */
+const frozen = (location.hash.match(/t=(\d+)/) || [])[1];
+let t0 = null;
+function frame(now) {
+  if (t0 === null) t0 = now;
+  const t = frozen !== undefined ? +frozen % LOOP : (now - t0) % LOOP;
+  render(t);
+  if (frozen === undefined) requestAnimationFrame(frame);
+}
+function start() {
+  resize(); measure(); render(frozen !== undefined ? +frozen % LOOP : 0);
+  requestAnimationFrame(frame);
+}
+addEventListener('resize', () => { resize(); });
+addEventListener('hashchange', () => location.reload());
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else addEventListener('load', start);
+})();
+</script>
+</body>
+</html>

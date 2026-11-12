@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONE DOT — Motion Reel 2026</title>
+<style>
+:root{
+  --ink:#0B0B0F; --bone:#F2EEE6; --verm:#FF4A1C; --blue:#2B4BFF; --acid:#D6FF3D;
+  --display:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);cursor:default}
+body{-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+#scene{clip-path:inset(0)}
+.abs{position:absolute}
+.dot{position:absolute;left:0;top:0;border-radius:50%;background:var(--bone);will-change:transform}
+.dot.v{background:var(--verm)}
+.shock{position:absolute;border:2px solid var(--bone);border-radius:50%;opacity:0}
+
+/* display type */
+.disp{font-family:var(--display);font-weight:700;text-transform:uppercase;white-space:nowrap}
+.lbox{position:relative;display:block;overflow:hidden;flex:none}
+.lin{display:inline-block;will-change:transform}
+.probe{display:inline-block;width:0;height:0}
+
+#row{position:absolute;left:800px;top:0;display:flex;font-size:260px;line-height:1;letter-spacing:-.04em;color:var(--ink);transform:translateX(-50%)}
+#row .lbox{height:1em}
+#uline{position:absolute;left:0;width:100%;height:12px;background:var(--bone);transform-origin:0 50%;transform:scaleX(0)}
+
+#title{position:absolute;left:240px;top:395px;height:150px;display:flex;font-size:150px;line-height:1;letter-spacing:-.03em;color:var(--bone)}
+#title .lbox{height:1em}
+#title .sp{display:block;flex:none;width:.28em;height:1em}
+#rule{position:absolute;background:var(--bone);transform-origin:100% 50%}
+#sub{position:absolute;left:240px;top:590px;font-family:var(--mono);font-size:16px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone);white-space:nowrap;opacity:0}
+
+/* gyroscope */
+#gyroWrap{position:absolute;left:800px;top:450px;width:0;height:0;perspective:1400px}
+#gyro{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d}
+.gring{position:absolute;border:3px solid var(--bone);border-radius:50%;transform-style:preserve-3d}
+.gring.acid{border-color:var(--acid)}
+.sat{position:absolute;left:50%;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--verm)}
+#gdot{position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:50%;background:var(--verm)}
+
+/* tiles */
+#tiles{position:fixed;inset:0;display:none;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(4,1fr);perspective:1200px;pointer-events:none}
+#tiles i{display:block;background:var(--blue);outline:1px solid var(--blue);transform-origin:50% 0;transform:rotateX(-90deg)}
+
+/* HUD */
+#hud{pointer-events:none}
+#hudin{position:absolute;inset:0;opacity:.6;color:var(--bone);font-family:var(--mono);font-weight:400;font-size:14px;letter-spacing:.2em;text-transform:uppercase;line-height:14px}
+#hudin>*{position:absolute;white-space:nowrap}
+#hl{left:48px;top:48px}
+#hr{right:48px;top:48px;margin-right:-.2em}
+#lab{left:48px;bottom:48px;height:14px;width:300px}
+#lab span{position:absolute;left:0;top:0;opacity:0}
+#barw{right:48px;bottom:54px;width:160px;height:2px}
+#bar{width:160px;height:2px;background:currentColor;transform-origin:0 50%;transform:scaleX(0)}
+</style>
+</head>
+<body>
+
+<div class="stage" id="scene">
+  <!-- scenes 1–2 + iris -->
+  <div id="s1">
+    <div class="shock" id="sh0"></div><div class="shock" id="sh1"></div><div class="shock" id="sh2"></div>
+  </div>
+  <!-- scene 3 -->
+  <div id="s3" style="display:none"><div id="row" class="disp" aria-label="Emotion"><div id="uline"></div></div></div>
+  <!-- scene 4 -->
+  <div id="s4" style="display:none">
+    <div id="gyroWrap"><div id="gyro">
+      <div class="gring" id="r1" style="width:220px;height:220px;left:-110px;top:-110px"><div class="sat"></div></div>
+      <div class="gring" id="r2" style="width:340px;height:340px;left:-170px;top:-170px"><div class="sat"></div></div>
+      <div class="gring acid" id="r3" style="width:460px;height:460px;left:-230px;top:-230px"><div class="sat"></div></div>
+      <div id="gdot"></div>
+    </div></div>
+  </div>
+  <!-- scene 5 -->
+  <div id="s5" style="display:none">
+    <div id="rule"></div>
+    <div id="title" class="disp" aria-label="Made to move"></div>
+    <div class="dot v" id="pdot" style="width:36px;height:36px;transform-origin:50% 100%"></div>
+    <div id="sub">Motion design reel — available now</div>
+  </div>
+</div>
+
+<div id="tiles"></div>
+
+<div class="stage" id="hud">
+  <div id="hudin">
+    <div id="hl">REEL 2026</div>
+    <div id="hr">00:00</div>
+    <div id="lab">
+      <span>01 — WEIGHT</span><span>02 — RHYTHM</span><span>03 — VOICE</span><span>04 — DEPTH</span><span>05 — SIGNATURE</span>
+    </div>
+    <div id="barw"><div id="bar"></div></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const INK='#0B0B0F',BONE='#F2EEE6',VERM='#FF4A1C',BLUE='#2B4BFF';
+const DUR=15000;
+
+/* ---------- easing ---------- */
+function bez(x1,y1,x2,y2){
+  const cx=3*x1,bx=3*(x2-x1)-cx,ax=1-cx-bx,cy=3*y1,by=3*(y2-y1)-cy,ay=1-cy-by;
+  const X=s=>((ax*s+bx)*s+cx)*s, Y=s=>((ay*s+by)*s+cy)*s, dX=s=>(3*ax*s+2*bx)*s+cx;
+  return x=>{
+    if(x<=0)return 0; if(x>=1)return 1;
+    let s=x;
+    for(let i=0;i<8;i++){const e=X(s)-x; if(Math.abs(e)<1e-6)return Y(s); const d=dX(s); if(Math.abs(d)<1e-6)break; s-=e/d;}
+    let lo=0,hi=1; s=x;
+    for(let i=0;i<40;i++){const e=X(s); if(Math.abs(e-x)<1e-6)break; if(e<x)lo=s; else hi=s; s=(lo+hi)/2;}
+    return Y(s);
+  };
+}
+const OUT=bez(.16,1,.3,1), IN=bez(.7,0,.84,0), INOUT=bez(.87,0,.13,1), BACK=bez(.34,1.56,.64,1),
+      UP=bez(.33,1,.68,1), DOWN=bez(.32,0,.67,0), LIN=x=>Math.min(1,Math.max(0,x));
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const prog=(t,s,d)=>clamp((t-s)/d);
+const tw=(t,s,d,a,b,e)=>a+(b-a)*e(prog(t,s,d));
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const cache=new WeakMap();
+function show(el,on){const v=on?'':'none'; if(cache.get(el)!==v){el.style.display=v;cache.set(el,v);}}
+function el(tag,cls,parent){const e=document.createElement(tag); if(cls)e.className=cls; if(parent)parent.appendChild(e); return e;}
+function letters(parent,text){
+  const out=[];
+  for(const ch of text){
+    if(ch===' '){el('span','sp',parent);continue;}
+    const box=el('span','lbox',parent), inn=el('span','lin',box); inn.textContent=ch;
+    const probe=el('span','probe',box);
+    out.push({box,inn,probe});
+  }
+  return out;
+}
+
+/* ---------- stage fit ---------- */
+const scene=$('scene'),hud=$('hud');
+function fit(){
+  const W=innerWidth,H=innerHeight,s=Math.min(W/1600,H/900);
+  const x=(W-1600*s)/2,y=(H-900*s)/2;
+  for(const st of [scene,hud]) st.style.transform=`translate(${x}px,${y}px) scale(${s})`;
+}
+addEventListener('resize',fit); fit();
+
+/* ---------- build: scene 1/2 dots ---------- */
+const s1=$('s1');
+const dots=[];
+for(let i=0;i<9;i++){const d=el('div','dot'+(i===4?' v':''),s1); d.style.width=d.style.height='48px'; d.style.transformOrigin='50% 100%'; if(i===4)d.style.zIndex=5; dots.push(d);}
+const D=dots[4];
+const shocks=[$('sh0'),$('sh1'),$('sh2')];
+const SH_START=[450,1120,1590], SH_D=[240,140,80];
+
+/* ---------- build: scene 3 ---------- */
+const row=$('row'), uline=$('uline');
+const rowL=letters(row,'EMOTION');
+rowL[0].box.style.color=BONE;
+rowL.forEach(l=>l.box.style.letterSpacing='-.04em');
+let Ew=0;
+
+/* ---------- build: scene 5 ---------- */
+const title=$('title');
+const titL=letters(title,'MADE TO MOVE');
+const rule=$('rule'), pdot=$('pdot'), sub=$('sub');
+let baseT=525, pCx=1280, restCy=507;
+
+/* ---------- build: tiles ---------- */
+const tilesEl=$('tiles'), tiles=[];
+for(let r=0;r<4;r++)for(let c=0;c<8;c++){const i=el('i','',tilesEl); tiles.push({i,d:c+r});}
+
+/* ---------- measure ---------- */
+function measure(){
+  const sh=[$('s3'),$('s5')],prev=sh.map(e=>e.style.display); sh.forEach(e=>e.style.display='');
+  // E natural width
+  const eb=rowL[0].box; eb.style.width='auto'; Ew=eb.getBoundingClientRect().width/ (scene.getBoundingClientRect().width/1600);
+  // row baseline (relative to row top)
+  const rb=rowL[1].probe.offsetTop;
+  const capH=.716*260;
+  row.style.top=(450-(rb-capH/2))+'px';
+  uline.style.top=(rb+24)+'px';
+  // title baseline / period position
+  baseT=395+titL[0].probe.offsetTop;
+  const last=titL[titL.length-1].box;
+  const right=240+last.offsetLeft+last.offsetWidth;
+  pCx=right+14+18;
+  restCy=baseT-18;
+  sh.forEach((e,i)=>e.style.display=prev[i]);
+}
+measure();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+addEventListener('load',measure);
+
+/* ---------- HUD ---------- */
+const hudin=$('hudin'),hr=$('hr'),bar=$('bar');
+const labs=[...document.querySelectorAll('#lab span')];
+const LAB_S=[0,2500,5950,9400,11900], LAB_E=[2500,5950,9400,11900,14400];
+let lastHudCol='',lastTC='',lastBg='';
+
+/* ---------- render: pure function of t ---------- */
+function squash(t,list){ // returns [sx,sy]
+  let sx=1,sy=1;
+  for(const [s,x,y] of list){
+    const l=t-s;
+    if(l>=0&&l<70){const p=OUT(l/70); sx*=1+(x-1)*p; sy*=1+(y-1)*p;}
+    else if(l>=70&&l<180){const p=BACK((l-70)/110); sx*=x+(1-x)*p; sy*=y+(1-y)*p;}
+  }
+  return [sx,sy];
+}
+
+function render(t){
+  /* background */
+  let bg=INK;
+  if(t>=5950&&t<9400)bg=VERM; else if(t>=9400&&t<11900)bg=BLUE;
+  if(bg!==lastBg){lastBg=bg;document.body.style.background=bg;document.documentElement.style.background=bg;}
+  scene.style.clipPath=(t>=5450&&t<5950)?'none':'inset(0)';
+
+  /* ===== scenes 1, 2, iris ===== */
+  const s1on=t<5950; show(s1,s1on);
+  if(s1on){
+    // main dot vertical path
+    let cy;
+    if(t<450)cy=tw(t,0,450,-60,450,IN);
+    else if(t<520)cy=450;
+    else if(t<820)cy=tw(t,520,300,450,300,UP);
+    else if(t<1120)cy=tw(t,820,300,300,450,DOWN);
+    else if(t<1190)cy=450;
+    else if(t<1390)cy=tw(t,1190,200,450,400,UP);
+    else if(t<1590)cy=tw(t,1390,200,400,450,DOWN);
+    else cy=450;
+    const [qx,qy]=squash(t,[[450,1.45,.55],[1120,1.25,.75],[1590,1.1,.9]]);
+
+    for(let i=0;i<9;i++){
+      const d=dots[i];
+      const isD=i===4;
+      if(!isD){ show(d, t>=1800&&t<5450); if(!(t>=1800&&t<5450))continue; }
+      const tx=320+120*i;
+      let cx=800+(tx-800)*OUT(prog(t,1800+30*Math.abs(i-4),600));
+      let y=cy, sx=1, sy=1;
+      if(t>=1800){ // wave
+        const l=t-2500-75*i;
+        y=450; if(l>0&&l<=2000)y=450-140*Math.sin(2*Math.PI*l/1000);
+        if(t>=5100)cx=cx+(800-cx)*IN(prog(t,5100,350));
+      } else if(isD){ sx=qx; sy=qy; }
+      if(isD&&t>=5450){
+        const sc=t<5550?tw(t,5450,100,1,.6,IN):tw(t,5550,400,.6,64,INOUT);
+        d.style.transformOrigin='50% 50%';
+        d.style.transform=`translate(${cx-24}px,${y-24}px) scale(${sc})`;
+      } else {
+        d.style.transformOrigin='50% 100%';
+        d.style.transform=`translate(${cx-24}px,${y-24}px) scale(${sx},${sy})`;
+      }
+    }
+    // shock rings
+    for(let k=0;k<3;k++){
+      const s=shocks[k], p=prog(t,SH_START[k],600), on=t>=SH_START[k]&&t<SH_START[k]+600;
+      show(s,on); if(!on)continue;
+      const e=OUT(p), dd=48+(SH_D[k]-48)*e;
+      s.style.width=s.style.height=dd+'px';
+      s.style.left=(800-dd/2)+'px'; s.style.top=(474-dd/2)+'px';
+      s.style.opacity=.8*(1-e);
+    }
+  }
+
+  /* ===== scene 3 ===== */
+  const s3on=t>=5950&&t<9400; show($('s3'),s3on);
+  if(s3on){
+    for(let k=0;k<6;k++){
+      const L=rowL[k+1];
+      L.inn.style.transform=`translateY(${110*(1-OUT(prog(t,5950+35*k,500)))}%)`;
+    }
+    const pe=prog(t,7000,550), e=BACK(pe);
+    rowL[0].box.style.width=(Ew*e)+'px';
+    rowL[0].inn.style.transform=`translateX(${-100*(1-e)}%)`;
+    uline.style.transform=`scaleX(${INOUT(prog(t,7500,600))})`;
+  }
+
+  /* ===== tiles ===== */
+  const ton=t>=8500&&t<9400;
+  if(cache.get(tilesEl)!==(ton?'g':'n')){tilesEl.style.display=ton?'grid':'none';cache.set(tilesEl,ton?'g':'n');}
+  if(ton)for(const T of tiles){
+    const a=-90*(1-OUT(prog(t,8500+40*T.d,500)));
+    T.i.style.transform=`rotateX(${a}deg)`;
+  }
+
+  /* ===== scene 4 ===== */
+  const s4on=t>=9400&&t<11900; show($('s4'),s4on);
+  if(s4on){
+    const sc=[0,1,2].map(k=>BACK(prog(t,9400+100*k,700)));
+    const l=t-9400;
+    $('r1').style.transform=`scale(${sc[0]}) rotateX(${360*l/1800}deg)`;
+    $('r2').style.transform=`scale(${sc[1]}) rotateY(${360*l/2400}deg)`;
+    $('r3').style.transform=`scale(${sc[2]}) rotateZ(45deg) rotateX(${-360*l/3000}deg)`;
+    $('gdot').style.transform=`scale(${BACK(prog(t,9500,400))})`;
+    $('gyro').style.transform=`scaleY(${tw(t,11500,400,1,.01,IN)})`;
+  }
+
+  /* ===== scene 5 ===== */
+  const s5on=t>=11900; show($('s5'),s5on);
+  if(s5on){
+    // rule
+    const rp=INOUT(prog(t,11900,500));
+    const w=460+(1120-460)*rp, h=3+(2-3)*rp, y=450+(560-450)*rp;
+    rule.style.width=w+'px'; rule.style.height=h+'px'; rule.style.left=(800-w/2)+'px'; rule.style.top=(y-h/2)+'px';
+    rule.style.transform=`scaleX(${1-INOUT(prog(t,14450,400))})`;
+
+    // title letters
+    const n=titL.length;
+    for(let i=0;i<n;i++){
+      const r=OUT(prog(t,12200+30*i,600));
+      const o=IN(prog(t,14400+15*i,300));
+      const rs=13350+25*(n-1-i), l=t-rs;
+      let rip=0;
+      if(l>0&&l<150)rip=-14*UP(l/150); else if(l>=150&&l<300)rip=-14*(1-DOWN((l-150)/150));
+      titL[i].inn.style.transform=`translateY(calc(${110*(1-r)+110*o}% + ${rip}px))`;
+    }
+
+    // subline
+    const sp=OUT(prog(t,13600,500));
+    sub.style.opacity=.6*sp*(1-IN(prog(t,14400,200)));
+    sub.style.transform=`translateY(${12*(1-sp)}px)`;
+
+    // period
+    let cy,sx=1,sy=1;
+    if(t<12900){cy=-60;}
+    else if(t<13350){cy=tw(t,12900,450,-60,restCy,IN);}
+    else{
+      cy=restCy;
+      const b=t-13420;
+      if(b>0&&b<150)cy=restCy-60*UP(b/150); else if(b>=150&&b<300)cy=restCy-60*(1-DOWN((b-150)/150));
+    }
+    if(t>=13350&&t<14500){[sx,sy]=squash(t,[[13350,1.4,.6]]);}
+    if(t>=14500){
+      if(t<14600){const p=OUT((t-14500)/100); sx=1+.3*p; sy=1-.3*p;}
+      else{
+        const p=IN(prog(t,14600,350));
+        sx=1.3+(.85-1.3)*p; sy=.7+(1.2-.7)*p;
+        cy=restCy+(-60-restCy)*p;
+      }
+    }
+    pdot.style.transform=`translate(${pCx-18}px,${cy-18}px) scale(${sx},${sy})`;
+  }
+
+  /* ===== HUD ===== */
+  const col=(t>=5750&&t<8900)?INK:BONE;
+  if(col!==lastHudCol){hudin.style.color=col;lastHudCol=col;}
+  const sec=Math.floor(t/1000), fr=Math.min(29,Math.floor((t%1000)/1000*30));
+  const tc=String(sec).padStart(2,'0')+':'+String(fr).padStart(2,'0');
+  if(tc!==lastTC){hr.textContent=tc;lastTC=tc;}
+  bar.style.transform=`scaleX(${LIN(t/DUR)})`;
+  for(let k=0;k<5;k++){
+    let op=0,y=16;
+    if(t>=LAB_S[k]){
+      const pe=OUT(prog(t,LAB_S[k],300)); op=pe; y=16*(1-pe);
+      const px=IN(prog(t,LAB_E[k],200)); op*=1-px; y-=16*px;
+    }
+    labs[k].style.opacity=op; labs[k].style.transform=`translateY(${y}px)`;
+  }
+}
+
+/* ---------- master clock ---------- */
+const qs=new URLSearchParams(location.search);
+let frozen=qs.has('t')?+qs.get('t'):null;
+let t0=performance.now();
+window.seek=v=>{frozen=v;render(((v%DUR)+DUR)%DUR);};
+window.play=()=>{frozen=null;t0=performance.now();};
+function loop(now){
+  render(frozen!==null?frozen:(now-t0)%DUR);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

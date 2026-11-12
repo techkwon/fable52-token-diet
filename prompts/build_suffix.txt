@@ -1,0 +1,2 @@
+
+A motion director has already designed this piece. Read DESIGN.md in the current directory and build it exactly as designed: same timeline, palette, type, easing and signature moments. Where the design is silent, use your own judgment in its spirit.

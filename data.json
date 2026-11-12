@@ -1,0 +1,761 @@
+{
+ "title": "Fable 5.2 토큰 다이어트",
+ "date": "2026-11-12",
+ "pipelines": [
+  {
+   "key": "fable-high",
+   "name": "Fable 5.2 · effort high"
+  },
+  {
+   "key": "fable-low",
+   "name": "Fable 5.2 · effort low"
+  },
+  {
+   "key": "opus-solo",
+   "name": "Opus 5.5 혼자 (high)"
+  },
+  {
+   "key": "build-opus",
+   "name": "설계 Fable 5.2 → 구현 Opus 5.5"
+  },
+  {
+   "key": "build-sonnet",
+   "name": "설계 Fable 5.2 → 구현 Sonnet 5.5"
+  },
+  {
+   "key": "build-gpt",
+   "name": "설계 Fable 5.2 → 구현 GPT-6.1 Sol"
+  }
+ ],
+ "tasks": {
+  "motion": {
+   "name": "과제 1 · 쇼릴 (모션 디자이너 포트폴리오)",
+   "prompt": "make a dynamic 15-second motion graphics video that shows what an incredible motion designer you are, like it's your showreel for a résumé. go all out.\n\nSave the result as one self-contained file named index.html in the current directory. Do it in one go, do not ask questions.",
+   "runs": {
+    "fable-high": {
+     "usd": 7.1884,
+     "turns": 21,
+     "seconds": 1154,
+     "tokens": {
+      "input": 28,
+      "cache_write": 148761,
+      "cache_read": 1449076,
+      "output": 112954,
+      "thinking": 75528
+     },
+     "total_tokens": 1710819,
+     "saved_pct": 0.0,
+     "build_usd": null,
+     "blocked_runs": 6,
+     "final_message": "`index.html` is written, but I could not run it: this session blocked launching a browser or Node, so the reel is untested. I proofread the whole script by hand instead; open it once to confirm it plays as described.\n\nIt is a 15-second loop on a single canvas, 1920×1080 scaled to the window, with no external assets or libraries. The six scenes are cut to a 120 BPM grid:\n\n| Time | Scene | What happens |\n|---|---|---|\n| 0.0–2.5 | Title | A red dot stretches into a line, splits into two rules, and \"CLAUDE.\" rises between them with an italic serif \"showreel\" over it. |\n| 2.5–5.0 | Kinetic type | \"TYPE\", \"that\", \"MOVES\" land one per beat, then a scrolling text wall and a spinning badge that expands into the next scene. |\n| 5.0–7.5 | Shape + rhythm | A Bauhaus-style tile grid pops in and rotates, then a single shape morphs circle → square → triangle → star with echo outlines. |\n| 7.5–10.0 | Depth | 1,296 points burst into a sphere, become a torus, then a rippling plane, with tracked callouts; they flatten into a dot grid. |\n| 10.0–12.0 | Timing | A bezier curve editor cycles through four easings while four balls demonstrate them with squash and stretch. |\n| 12.0–15.0 | Sign-off | Colour rings and confetti burst, then \"LET'S MAKE IT MOVE.\" with count-up stats, and an iris closes back to the opening dot. |\n\nA timecode and progress overlay runs throughout, with film grain, camera shake and a colour-split on the big hits.\n\n- **Sound:** click anywhere to start a synthesised soundtrack synced to the cuts; click again to mute. It is off by default because browsers block autoplay audio, and I have not heard it.\n- **Pause:** Space.\n- **Still frames:** add `?t=7.9` (any second from 0 to 15) to the URL to freeze on that frame.\n\nType is set in system fonts and looks best on macOS; elsewhere the serif falls back to Georgia or similar."
+    },
+    "fable-low": {
+     "usd": 1.7073,
+     "turns": 4,
+     "seconds": 282,
+     "tokens": {
+      "input": 6,
+      "cache_write": 35828,
+      "cache_read": 77741,
+      "output": 27961,
+      "thinking": 12500
+     },
+     "total_tokens": 141536,
+     "saved_pct": 76.25,
+     "build_usd": null,
+     "blocked_runs": 2,
+     "final_message": "The showreel is saved as `index.html`, but I couldn't test it: both attempts to syntax-check the script were blocked by permissions, and I haven't seen it play in a browser.\n\nOpen the file in a browser and it plays a seamless 15-second loop, drawn on a canvas with no external assets. Clicking anywhere turns on a synthesized 120 BPM soundtrack synced to the visuals; clicking again mutes it.\n\nThe six scenes:\n\n1. **Drop (0–2.5s)** — an orange ball falls, hits, and bursts into a full-screen wipe that reveals \"MOTION\" letter by letter.\n2. **Type (2.5–5s)** — \"TIMING / SPACING / TASTE.\" slam in on the beat behind colour blocks, beside a starburst that steps with the tempo.\n3. **Morph (5–8s)** — one shape morphs circle → square → triangle → star → flower → hexagon with overshoot, trailing echoes and a rippling dot grid.\n4. **Depth (8–11s)** — 1,600 particles in 3D form a sphere, then a torus, then a rolling wave field.\n5. **Systems (11–13s)** — four tiles pop in: an easing curve drawing itself, elastic bars, a counter, and spinning arcs.\n6. **Sign-off (13–15s)** — \"CLAUDE\" lockup, then everything collapses into the ball, which launches off the top to become the opening drop.\n\nA timecode, scene label and progress bar sit over the whole thing, with a light film grain."
+    },
+    "opus-solo": {
+     "usd": 3.0523,
+     "turns": 12,
+     "seconds": 966,
+     "tokens": {
+      "input": 18,
+      "cache_write": 108686,
+      "cache_read": 689195,
+      "output": 102244,
+      "thinking": 59399
+     },
+     "total_tokens": 900143,
+     "saved_pct": 57.54,
+     "build_usd": null,
+     "blocked_runs": 4,
+     "final_message": "I've made the showreel: one self-contained `index.html` with no external files. It's 15 seconds long and loops. **I haven't seen it play.** I couldn't open a browser here, and running Node to test the frames needed approval, so the only check was reading the code by hand. That turned up one bug, which I fixed: the triangle would have landed sideways after its spin. Open it in Chrome or Safari to see the real result.\n\nEverything is drawn in code at 1920×1080 and scales to fit the window. The music is generated in the browser too.\n\n**The reel, scene by scene (cuts land on the beat at 120 BPM):**\n\n| Time | Scene | What happens |\n|---|---|---|\n| 0–2.5s | **Ignition** | A dot pops in and stretches into a line. The line splits into colored bars, then \"MOTION\" rises up letter by letter with a scrambled-text subtitle. The camera zooms through the letter \"I\" into white. |\n| 2.5–5s | **Shape & Form** | A shape morphs on every beat: circle → square → triangle → star, with overshoot and squash & stretch. Small orbiting shapes leave trails. A design-tool overlay follows it: selection box with handles, live rotation and scale numbers, and a mini timeline with keyframes. |\n| 5–7.5s | **Timing & Easing** | \"TIMING IS EVERYTHING.\" slams in with screen shake. On the left, a live easing-curve editor shows its numbers changing. On the right, six balls each move with a different easing (linear, ease-out, back, elastic, bounce…) with motion blur. A diagonal color wipe ends the scene. |\n| 7.5–10s | **Particles** | 3,600 particles burst out and form the word \"CRAFT\". A light scans across, then they swirl into \"DEPTH\" and fly toward the camera at warp speed. |\n| 10–12s | **3D & Depth** | A glowing knot shape draws itself on, with a scrolling grid tunnel, a starfield, orbiting wireframe cubes and camera readouts. A glitch effect cuts to the next scene. |\n| 12–13.5s | **Montage** | Twelve tiles pop into a grid, each running its own short loop (pendulum wave, bouncing ball, flipping squares, wobbling blob, etc.), then shrink away. |\n| 13.5–15s | **Signature** | A logo ring draws on, the four shapes from scene 2 burst back out, and \"CLAUDE — Motion Designer · Showreel 2026\" appears. Everything then shrinks back into the dot the reel opened with, so the loop is seamless. |\n\nOver everything sits a frame overlay: crop marks, a running timecode, the scene name, a progress bar, film grain and a vignette.\n\n**Sound:** Browsers block audio until you interact, so it starts silent. Click anywhere (or the \"CLICK FOR SOUND\" pill) and it restarts from the top with a generated track: kick, clap, hi-hats, bassline, chords, risers, impacts, and blips on the text and shape changes.\n\n**Controls:**\n- Move the mouse to show the player bar, which has a scrubber with scene markers.\n- **Space** plays or pauses, **M** toggles sound, and **←/→** step one frame (Shift jumps one second).\n- Add `?t=8.2` to the URL to freeze on any moment."
+    },
+    "build-opus": {
+     "usd": 2.8273,
+     "turns": 9,
+     "seconds": 604,
+     "tokens": {
+      "input": 18,
+      "cache_write": 46395,
+      "cache_read": 365816,
+      "output": 37190,
+      "thinking": 24913
+     },
+     "total_tokens": 788629,
+     "saved_pct": 60.67,
+     "build_usd": 1.1881952,
+     "blocked_runs": 5,
+     "final_message": "I built `index.html` from DESIGN.md, but I couldn't watch it play. My attempts to run headless Chrome and a Node syntax check were blocked by permission prompts, so no frame has been rendered or checked. I checked the code by reading it closely. Open the file in a browser to confirm it plays as intended.\n\n**What it does:** a 15-second piece that loops without a visible seam. Every frame is worked out from one master clock (elapsed time mod 15 s), so it stays in sync whatever the frame rate. The 1600×900 stage scales to fit any window, and the background colour fills the whole window.\n\n**Following the design:** the timeline, the five colours, both typefaces and all seven easing curves are as written in DESIGN.md. The three signature moments:\n1. **E shove:** the E's box really grows in the layout with the overshoot easing. Because the row stays centred, MOTION gets pushed right and overshoots; nothing is crossfaded.\n2. **Tiles into gyroscope:** 32 tiles flip down in a diagonal stagger with real 3D perspective. Then three rings spin on different axes. Each ring's satellite sits at its true 3D position on the rim and always faces the camera, so it never flattens into a line. The squashed gyroscope becomes the rule line in the last scene.\n3. **Full stop:** the dot drops in, squashes, bounces once, ripples the title right to left, then squashes and stretches as it launches off the top, which leads straight back into the start.\n\n**Where the design was silent, I chose:**\n- The circle-wipe transition and the tile flip are drawn over the whole window, not just the stage, so they cover it on any screen shape.\n- The tiles start darker and brighten as they lay flat, for a sense of depth.\n- The dots stretch slightly with their vertical speed during the wave, and the clones stretch sideways as they rush back to the centre.\n- The full stop gets a small extra squash when it lands after its bounce.\n- The underline and the full stop's position are measured from the actual letter shapes, so the underline spans the word and the dot sits exactly 14 units after the last E.\n- The last scene label exits during the outro so \"01 — WEIGHT\" can slide in cleanly when it loops.\n\nFor checking a single moment, you can freeze any frame by adding `#t=<milliseconds>` to the address, e.g. `index.html#t=7400`."
+    },
+    "build-sonnet": {
+     "usd": 2.1762,
+     "turns": 14,
+     "seconds": 501,
+     "tokens": {
+      "input": 20,
+      "cache_write": 43000,
+      "cache_read": 397329,
+      "output": 32528,
+      "thinking": 21447
+     },
+     "total_tokens": 812087,
+     "saved_pct": 69.73,
+     "build_usd": 0.5370529,
+     "blocked_runs": 5,
+     "final_message": "`index.html` is written in the current directory, but I haven't run it. This sandbox has no browser I can open and it blocked me from running a syntax check, so I only reviewed the code by reading it.\n\nIt follows DESIGN.md as written:\n- **Clock and timeline:** one master clock runs `t` over a 15 s loop, and every frame is computed from `t` alone. All eight scenes sit at the timestamps in the design. At 15 s the stage is empty Ink with the dot above the frame, the same as at 0, so it loops cleanly.\n- **Palette, type and easing:** the five palette colours, the Display and Mono type specs, and the seven cubic-bezier easings are used as given.\n- **Signature moments:**\n  - **E shove:** the E's box width grows in a flex row that stays centred. MOTION is really pushed right, with the BACK overshoot.\n  - **Tile flip:** 8×4 Blue tiles flip down diagonally under 1200 perspective, covering the whole window.\n  - **Gyroscope:** three rings spin on different axes under 1400 perspective.\n  - **Full stop:** the period lands with a squash, ripples the title right to left, then launches up and restarts the loop.\n- **HUD:** the on-screen HUD has the timecode, the progress bar and the scene-label swap. The HUD text switches to Ink between 5750 and 8900.\n\nWhere the design was silent:\n- The period's 60u bounce starts 70 ms after it lands, as the squash releases.\n- Scene label 05 exits at 14.4 s so the loop restarts clean.\n- The stage is clipped to its 1600×900 frame except during the iris flood, so the dot never shows in the letterbox bars.\n- The title baseline, underline position and period position are measured from the real font at load.\n\nYou can freeze any frame with `index.html?t=7200`, or call `seek(ms)` in the console. Fonts depend on the machine, so the layout may shift a little from system to system. If anything looks off when you open it, send me a screenshot and I'll fix it."
+    },
+    "build-gpt": {
+     "usd": 1.9633,
+     "turns": null,
+     "seconds": 495,
+     "tokens": {
+      "input": 57136,
+      "cache_write": 0,
+      "cache_read": 871808,
+      "output": 12277,
+      "thinking": 3137
+     },
+     "total_tokens": 1280431,
+     "saved_pct": 72.69,
+     "build_usd": 0.3242228,
+     "blocked_runs": null,
+     "final_message": "[index.html](./index.html)에 저장했습니다. 외부 의존성 없이 15초 모션 그래픽이 자동 반복됩니다.\n\n구문·타임라인 검사를 통과했습니다. 브라우저 실행 제한으로 실제 화면 검증은 완료하지 못했습니다."
+    }
+   }
+  },
+  "lesson": {
+   "name": "과제 2 · 중학교 과학 광합성 수업 오프닝",
+   "prompt": "Make a dynamic 15-second motion graphics video that opens a middle school science lesson on photosynthesis (광합성). Students should be hooked in the first seconds. On-screen text in Korean. Go all out.\n\nSave the result as one self-contained file named index.html in the current directory. Do it in one go, do not ask questions.",
+   "runs": {
+    "fable-high": {
+     "usd": 6.8898,
+     "turns": 15,
+     "seconds": 1179,
+     "tokens": {
+      "input": 16,
+      "cache_write": 126298,
+      "cache_read": 780578,
+      "output": 117820,
+      "thinking": 74411
+     },
+     "total_tokens": 1024712,
+     "saved_pct": 0.0,
+     "build_usd": null,
+     "blocked_runs": 6,
+     "final_message": "**`index.html` is written, but I could not run it here.** The sandbox blocked both headless Chrome and Node, so the video has only been checked by reading the code, not by watching it. Please open it once in a browser before class.\n\nWhat the 15 seconds contain, all drawn live on a 1920×1080 canvas that scales to the window:\n\n| Time | Scene | On-screen text |\n|---|---|---|\n| 0–2.8s | Hook: a rice bowl drops in and gets a red X | 밥 안 먹고 평생 살 수 있을까? |\n| 2.8–4.7s | A plant shoots up under the sun | 식물은 그렇게 산다! · 햇빛 · 물 · 공기만 있으면! |\n| 4.7–6.7s | Zoom into the leaf | 잎 ▸ 세포 ▸ 엽록체, 확대 ×1 → ×10,000 |\n| 6.7–10.5s | Inside the chloroplast: inputs flow in, it charges, bursts, and outputs flow out | 빛에너지, 물, 이산화 탄소 → 포도당(양분), 산소 |\n| 10.5–12.7s | The equation as a recipe card | 물 + 이산화 탄소 → 포도당 + 산소 (빛에너지, 엽록체) |\n| 12.7–15s | Title slam with the hanja meaning | 광합성 (光 빛으로 · 合 합쳐서 · 成 만든다), 오늘의 질문: 식물은 어떻게 스스로 양분을 만들까? |\n\n- **Sound:** there is a synthesized soundtrack timed to the hits, but browsers won't autoplay audio. The video starts silent; click the \"소리 켜고 처음부터\" pill (or press M) to restart with sound.\n- **Controls:** click or Space to play/pause, R to restart, F for fullscreen, ←/→ to step one second. The control bar appears on mouse move, and the last frame holds with a \"다시 보기\" button.\n- **Fonts:** Korean text uses whatever heavy Korean font the computer has (Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR), so letter shapes will differ slightly between Mac and Windows.\n\nTwo wording choices are mine: the top label on the title card says \"중학교 과학 · 식물과 에너지\", and the equation card is headed \"식물이 스스로 ‘밥’ 짓는 법\". Adjust either if it doesn't match your textbook unit or tone."
+    },
+    "fable-low": {
+     "usd": 1.6908,
+     "turns": 4,
+     "seconds": 288,
+     "tokens": {
+      "input": 6,
+      "cache_write": 35434,
+      "cache_read": 77405,
+      "output": 27709,
+      "thinking": 10682
+     },
+     "total_tokens": 140554,
+     "saved_pct": 75.46,
+     "build_usd": null,
+     "blocked_runs": 2,
+     "final_message": "The 15-second photosynthesis opener is saved as `index.html`, but it is untested: the syntax check was blocked by permissions and I never opened it in a browser. Please play it through once before class.\n\nIt plays automatically without sound when opened. Clicking the screen (or pressing Space/Enter) restarts it from the beginning with synthesized sound effects and a simple beat.\n\n| Time | What happens |\n|---|---|\n| 0–3s | Hook: \"아무것도 먹지 않고\" slams in, then a counter races up to **1000톤** while a giant tree grows behind it — \"까지 자라는 생물이 있다?!\" |\n| 3–5.7s | Sun flash, then \"비밀은 잎 속에 있다!\" and the camera dives into a leaf, through its cells, to an **엽록체**. |\n| 5.7–10.5s | Inside the chloroplast \"factory\": 빛, 이산화 탄소 (CO₂) and 물 (H₂O) stream in, there is a burst, and 포도당 (양분) and 산소 (O₂) fly out. |\n| 10.5–13s | \"한 줄로 정리하면?\" — the equation assembles piece by piece: 이산화 탄소 + 물 → (빛, 엽록체) → 포도당 + 산소. |\n| 13–15s | Title slam: **광합성** with 光·合·成 meanings, falling leaves, and the lesson question \"식물은 어떻게 스스로 양분을 만들까?\" |\n\nAfter 15 seconds it holds on the title frame with a replay prompt.\n\n- **Fonts:** the file is fully self-contained and uses the computer's installed Korean fonts, so the lettering will look slightly different on Mac and Windows.\n- **The 1000톤 figure:** it is my rounded figure for the largest giant sequoias, from memory rather than a checked source, so verify it if students will quote it."
+    },
+    "opus-solo": {
+     "usd": 2.7206,
+     "turns": 15,
+     "seconds": 897,
+     "tokens": {
+      "input": 18,
+      "cache_write": 97571,
+      "cache_read": 621660,
+      "output": 90782,
+      "thinking": 52117
+     },
+     "total_tokens": 810031,
+     "saved_pct": 60.51,
+     "build_usd": null,
+     "blocked_runs": 4,
+     "final_message": "I've made the 15-second intro video as a single file, `index.html`. It's drawn live in the browser (canvas plus synthesized sound), with no outside files or internet needed. **I couldn't play it here.** Running a browser or Node needed approval, so I checked the code only by reading it. Please watch it once in Chrome before class to make sure the timing and text placement look right.\n\n**Storyboard**\n\n| Time | Scene |\n|---|---|\n| 0–1.1s | **Hook:** \"자, 다 같이! 숨을 크게 들이쉬어 봐\". Particles in the air (including small O₂ molecules) get pulled into the centre like an inhale, with a breathing sound. |\n| 1.1–2.7s | **Smash cut:** \"방금 들이마신 그 산소,\" then \"**누가 만들었을까?**\" slams in with a screen shake, colour-split glitch and burst lines, and a bouncing gold \"?\". A green circle then opens up from the centre into the next scene. |\n| 2.7–5.0s | **Answer:** the sun rises, a leaf grows and its veins draw in. \"정답은 바로… **식물의 잎!**\" with a gold underline and \"초록 잎이 산소를 만든다고?\". O₂ bubbles rise off the leaf, then the camera zooms into it. |\n| 5.0–10s | **Inside the leaf:** the 엽록체 (labelled \"잎 속의 작은 광합성 공장\"). STEP 1 \"재료가 들어가요\": light waves (빛 에너지), CO₂ coming in through the stomata (기공), H₂O rising from the roots. The chloroplast charges up and flashes. STEP 2 \"양분과 산소가 나와요\": 포도당 and O₂ come out, with the callout \"↑ 바로 네가 마신 그 산소!\" linking back to the opening question. |\n| 10–12.6s | **Equation:** each molecule icon flies from its label into one line: 이산화 탄소 + 물 →(빛, 엽록체에서) 포도당 + 산소, with formulas underneath and a light sweep. Caption: \"식물은 빛 에너지로 양분을 만들고, 산소를 내보내요\". |\n| 12.6–15s | **Title:** white flash and shockwave, a burst of leaves, and **광합성** dropping in one character at a time with a glow and shine. Also shown: a \"중학교 과학 · 오늘의 수업\" badge, the hanja meanings (光 빛 · 合 합하다 · 成 이루다), PHOTOSYNTHESIS, and \"지금부터 식물의 비밀을 풀어 보자!\" |\n\n**Sound:** the whole score is synthesized in the browser: breath, impacts, risers, a 120 BPM beat with chords, bubble pops and bells, all timed to the visuals. Browsers block autoplay with sound, so the video starts silent. Click the top button **\"🔊 소리 켜고 처음부터 보기\"** (or click the video) to restart it from the beginning with sound.\n\n**Controls:** Space plays or pauses, R restarts, M toggles sound, F goes full screen, and ←/→ jump one second. There's a seek bar at the bottom, and the controls hide while it plays. Adding `?t=7.5` to the address opens the video paused at that moment.\n\nThe Korean text uses fonts already on the computer (Apple SD Gothic Neo, Malgun Gothic or Noto Sans KR), so the lettering will look a little different depending on the machine."
+    },
+    "build-opus": {
+     "usd": 3.196,
+     "turns": 8,
+     "seconds": 634,
+     "tokens": {
+      "input": 16,
+      "cache_write": 43549,
+      "cache_read": 304466,
+      "output": 36025,
+      "thinking": 19085
+     },
+     "total_tokens": 793449,
+     "saved_pct": 53.61,
+     "build_usd": 1.1298492000000002,
+     "blocked_runs": 5,
+     "final_message": "I've built `index.html` from DESIGN.md, but I haven't watched it play. My attempts to open it in a headless browser and to syntax-check the script were blocked by permissions, so I could only check the code by reading it. Opening the file in a browser is the first real test.\n\n**What it does:** the 15-second, 16:9 piece follows the design's timeline, colours, Pretendard type and the four easing curves exactly. Everything is calculated from a single clock, so the timing is the same on every play. All on-screen text is Korean, and it loops seamlessly at 15 s.\n\n- **0–3.2 s:** A seed drops in and squashes. The tree grows: trunk, then branches, then leaves popping outward from the centre. The counter rolls from 0 kg to 1,000 kg and finishes at 3.1 s at the same moment as the last leaf. Then the counter punches to 1.25× and turns yellow (the design's Sun colour), and the tree gives a small thump.\n- **3.2–5.2 s:** \"이 무게, 어디서 왔을까?\" rises word by word. A \"흙?\" chip pops in, gets struck through in red, shakes and dims.\n- **5.2–6.2 s:** The centre leaf scales 30× until it fills the screen and darkens into the next background. There's no cross-fade.\n- **6.2–10.4 s:** Inside the cell, the chloroplast pulses faster and faster (1.2 s down to 0.3 s per beat) while a yellow glow builds behind it. Light beams, an arc of water drops and spinning CO₂ molecules stream in, each with its label.\n- **10.4–12.2 s:** The chloroplast squeezes in, then a white flash and shock ring. The glucose hexagon spins out to the left and oxygen bubbles scatter right and drift up. The colour-coded equation rises in term by term.\n- **12.2–15 s:** A slanted green panel wipes across and becomes the background. \"광합성\" rises letter by letter, then the subtitle appears, and it fades to dark.\n\n**Things I added that the design doesn't mention:**\n- a small burst ring as the seed turns into the tree\n- faint floating specks of dust in the opening scenes\n- moving light dashes along the sun beams\n- a second, thinner shock ring\n- a yellow leading edge on the wipe panel\n- an inner outline on the glucose hexagon\n- a subtle edge darkening and film grain\n\n**Font:** Pretendard loads from a CDN, so offline the text falls back to Apple SD Gothic Neo or Noto Sans KR. The animation waits up to 1.5 s for the font before starting.\n\n**Controls:** Space pauses or resumes, and a click restarts. Adding `?t=` to the address shows a single frozen frame, for example `index.html?t=10450` for the flash."
+    },
+    "build-sonnet": {
+     "usd": 2.8885,
+     "turns": 12,
+     "seconds": 691,
+     "tokens": {
+      "input": 22,
+      "cache_write": 61844,
+      "cache_read": 601121,
+      "output": 51484,
+      "thinking": 35395
+     },
+     "total_tokens": 1123864,
+     "saved_pct": 58.08,
+     "build_usd": 0.8223720999999998,
+     "blocked_runs": 6,
+     "final_message": "I built the video and saved it as `index.html` in the current directory, but I haven't run it. Chrome wasn't available to me and both attempts at a node syntax check were blocked. I only caught one bug, by reading the code, so expect small layout or timing slips on first play.\n\n**What's in it**\n\nIt follows DESIGN.md's 15-second timeline, \"1,000 kg의 비밀\", as one self-contained file. It runs on a single clock and loops at 15000 ms from the same frame.\n\nThe three signature moments are built as designed:\n- **Weigh-in:** the last canopy circle and the counter both finish at 3.1 s. The counter then punches to 1.25× and turns Sun yellow.\n- **Leaf dive:** the hero leaf scales 1→30 and its fill becomes the Deep leaf background, so there's no cross-fade.\n- **Collision:** the chloroplast pulses faster (1200→300 ms period), compresses to 0.7×, then flashes and sends out a shock ring. Glucose and oxygen bubbles fly outward.\n\n**Additions where the design was silent**\n- Dust puff on the seed landing.\n- Spark burst on the weigh-in punch.\n- Small camera shake on the collision.\n- Chemical-formula captions under the labels (H₂O, CO₂, C₆H₁₂O₆, O₂).\n- A Sun-colored edge that leads the wipe.\n- Faint rotating rays on the final screen.\n\n**Controls**\n- Space pauses and resumes.\n- ←/→ steps 250 ms.\n- R restarts.\n- Adding `#t=5500` to the URL freezes on that moment.\n\n**Fonts:** Pretendard isn't embedded, so it falls back to Apple SD Gothic Neo or Noto Sans KR, as the design allows. Text widths may differ slightly from what the director saw.\n\n**The one bug:** the question text rows used an `em` offset that would have put them far off position. I fixed it."
+    },
+    "build-gpt": {
+     "usd": 2.5871,
+     "turns": null,
+     "seconds": 734,
+     "tokens": {
+      "input": 69366,
+      "cache_write": 0,
+      "cache_read": 1692032,
+      "output": 21305,
+      "thinking": 4761
+     },
+     "total_tokens": 2192096,
+     "saved_pct": 62.45,
+     "build_usd": 0.5209851999999999,
+     "blocked_runs": null,
+     "final_message": "[index.html](index.html)에 저장했습니다.\n\n15초 자동 반복, 한글 폰트, 모션 효과, 선택형 음향을 모두 내장했습니다. 1,501개 시점과 주요 장면 9장을 검증했습니다. 실제 브라우저 재생 검증은 샌드박스 제한으로 수행하지 못했습니다."
+    }
+   }
+  }
+ },
+ "scores": {
+  "ballots": 16,
+  "points": {
+   "motion": {
+    "opus-solo": 47,
+    "fable-low": 40,
+    "fable-high": 33,
+    "build-gpt": 23,
+    "build-opus": 17,
+    "build-sonnet": 8
+   },
+   "lesson": {
+    "opus-solo": 41,
+    "fable-low": 42,
+    "fable-high": 37,
+    "build-sonnet": 24,
+    "build-gpt": 13,
+    "build-opus": 11
+   },
+   "all": {
+    "opus-solo": 88,
+    "fable-low": 82,
+    "fable-high": 70,
+    "build-sonnet": 32,
+    "build-gpt": 36,
+    "build-opus": 28
+   }
+  },
+  "firsts": {
+   "opus-solo": 11,
+   "fable-low": 5
+  },
+  "spec_builds_bottom3_ballots": 16,
+  "max_points_all": 96,
+  "video": {
+   "judge": "gemini-4-carbon (watched the six 16s recordings)",
+   "ballots": 4,
+   "points": {
+    "fable-low": 21,
+    "opus-solo": 19,
+    "build-sonnet": 13,
+    "fable-high": 19,
+    "build-opus": 8,
+    "build-gpt": 4
+   },
+   "firsts": {
+    "fable-low": 1,
+    "opus-solo": 1,
+    "fable-high": 2
+   },
+   "max_points": 24
+  }
+ },
+ "ballots": {
+  "motion": {
+   "mapping": {
+    "A": "fable-high",
+    "B": "build-opus",
+    "C": "opus-solo",
+    "D": "build-sonnet",
+    "E": "build-gpt",
+    "F": "fable-low"
+   },
+   "votes": [
+    {
+     "judge": "fable",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-high": "키네틱 타이포, 3D 파형, 파티클 등 장면 구성이 다양하고 세련됐지만 마지막 프레임이 점 하나로 끝나 마무리가 약합니다.",
+      "build-opus": "미니멀한 구성은 깔끔하나 빈 파란 화면과 가는 선만 있는 프레임이 있어 볼거리가 부족하고 엔딩 문구 왼쪽이 잘려 보입니다.",
+      "opus-solo": "글리치 타이틀, 이징 곡선, 파티클 타이포, 3D 네온 글리치, 시그니처 엔딩까지 장면이 가장 풍부하고 완성도 높은 쇼릴입니다.",
+      "build-sonnet": "B·E와 거의 같은 미니멀 구성인데 엔딩 문구가 셋 중 가장 많이 잘려 보이고 빈 화면 비중이 큽니다.",
+      "build-gpt": "B·D와 같은 미니멀 구성으로 내용은 빈약하지만 엔딩 문구가 셋 중 가장 온전하게 보입니다.",
+      "fable-low": "대담한 색과 타이포, 모프, 3D 토러스, 분할 대시보드 등 다채롭고 깔끔하지만 마지막이 점 하나로 끝나 C보다 임팩트가 덜합니다."
+     }
+    },
+    {
+     "judge": "opus",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-high": "키네틱 타이포, 3D 파티클 웨이브, 컬러 전환 등 장면이 다양하지만 마지막 프레임이 거의 비어 있어 마무리가 약하다.",
+      "build-opus": "점 애니메이션과 대담한 컬러 전환은 깔끔하지만 장면이 단조롭고 일부 프레임이 비어 있으며 마지막 텍스트 아랫부분이 잘린 채 캡처됐다.",
+      "opus-solo": "글리치 타이포, 셰이프 리깅, 이징 그래프, 파티클 텍스트, 3D 네온, 엔딩 로고까지 장면 구성이 가장 다채롭고 완성도가 높다.",
+      "build-sonnet": "B와 거의 같은 구성이라 단조롭고 마지막 'MADE TO MOVE' 텍스트가 잘린 채 캡처됐다.",
+      "build-gpt": "B·D와 같은 미니멀 구성이지만 마지막 텍스트가 조금 더 드러나 있는데, 여전히 빈 장면이 많아 임팩트가 약하다.",
+      "fable-low": "타이포, 모프, 3D 토러스, 데이터 그리드 등 풍부하고 세련된 장면이 이어지지만 마지막은 점 하나로 끝나 다소 허전하다."
+     }
+    },
+    {
+     "judge": "gpt",
+     "ranking": [
+      "fable-low",
+      "opus-solo",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-high": "키네틱 타이포와 입체 파티클이 다채롭지만 장면별 밀도와 완성도가 고르지 않습니다.",
+      "build-opus": "색 대비와 구성은 깔끔하지만 빈 장면이 많고 마지막 문구가 일부 가려집니다.",
+      "opus-solo": "정교한 도형·타이포·글리치 연출이 다양하고 일관되어 쇼릴의 설득력이 높습니다.",
+      "build-sonnet": "단순한 점과 색면 위주로 기량 표현이 제한적이며 마지막 문구의 가림도 두드러집니다.",
+      "build-gpt": "단순한 구성으로 볼거리는 부족하지만 유사한 구성 중 마지막 문구가 비교적 잘 드러납니다.",
+      "fable-low": "대담한 타이포와 모핑·입체 표현·분할 구성이 조화롭고 가장 풍성하고 세련된 쇼릴입니다."
+     }
+    },
+    {
+     "judge": "carbon",
+     "ranking": [
+      "opus-solo",
+      "fable-high",
+      "fable-low",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-high": "강렬한 타이포그래피와 입체적인 파티클 연출로 다채롭고 세련된 쇼릴을 완성했습니다.",
+      "build-opus": "미니멀한 구성이나 빈 화면이 길고 마지막 텍스트 하단이 일부 잘려 아쉽습니다.",
+      "opus-solo": "타이포그래피, 이징 그래프, 파티클, 3D 그래픽 등 수준 높은 모션 기법을 완벽히 선보였습니다.",
+      "build-sonnet": "전반적인 구성이 단조로우며 마지막 프레임의 텍스트 클리핑 현상이 가장 심합니다.",
+      "build-gpt": "깔끔한 미니멀 스타일이지만 화면 전환이 단조롭고 마지막 문구 일부가 살짝 가려집니다.",
+      "fable-low": "감각적인 레이아웃과 다채로운 그래픽 요소를 잘 활용했으나 일부 작은 텍스트가 잘렸습니다."
+     }
+    },
+    {
+     "judge": "carbon-video",
+     "ranking": [
+      "fable-high",
+      "fable-low",
+      "opus-solo",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-high": "다채로운 타이포그래피와 기하학적 연출, 3D 파티클 및 매끄러운 전환이 어우러져 쇼릴로서의 완성도가 가장 뛰어납니다.",
+      "build-opus": "간결한 도형 및 텍스트 모션은 무난하나 프롬프트가 요구한 화려한 역량 과시용으로는 연출 밀도가 낮습니다.",
+      "opus-solo": "파티클 타이포와 3D 매듭, 12분할 몽타주 등 기술적 시도가 풍성하지만 일부 구간의 UI 겹침이 아쉽습니다.",
+      "build-sonnet": "미니멀한 모션과 루프 타이밍은 깔끔하지만 전반적인 구성이 단조로워 역동적인 쇼릴로는 아쉬움이 남습니다.",
+      "build-gpt": "기본적인 미니멀 애니메이션은 갖추었으나 시각적 풍성함이 부족하고 루프 구간의 타이밍이 미세하게 어긋납니다.",
+      "fable-low": "감각적인 그래픽 디자인과 화면 와이프 전환, 모핑 및 대시보드 연출이 버그 없이 깔끔하게 조화를 이룹니다."
+     }
+    }
+   ]
+  },
+  "motion-rev": {
+   "mapping": {
+    "A": "fable-low",
+    "B": "build-gpt",
+    "C": "build-sonnet",
+    "D": "opus-solo",
+    "E": "build-opus",
+    "F": "fable-high"
+   },
+   "votes": [
+    {
+     "judge": "fable",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-opus",
+      "build-gpt",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-low": "타이포·모프·파티클 토러스·벤토 그리드까지 장면이 다양하고 완성도가 높지만, 마지막 프레임이 점 하나로 다소 허전합니다.",
+      "build-gpt": "구성은 깔끔하지만 파란 화면과 선 하나뿐인 프레임이 비어 보이고, 마지막 문구의 왼쪽이 잘린 채 캡처되어 쇼릴로서는 빈약합니다.",
+      "build-sonnet": "B·E와 거의 같은 미니멀 구성인데 마지막 문구 'MADE'가 셋 중 가장 많이 잘려 보여 완성도가 가장 낮습니다.",
+      "opus-solo": "글리치 타이틀, 베지어 핸들 도형, 이징 커브 비교, 파티클 글자, 3D 글리치 매듭, 엔딩 로고까지 가장 풍부하고 세련된 쇼릴입니다.",
+      "build-opus": "B·C와 같은 미니멀 구성이지만 점들에 늘어짐(스쿼시·스트레치)이 보여 움직임 표현이 조금 더 낫고, 빈 프레임이 많은 점은 같습니다.",
+      "fable-high": "키네틱 타이포 벽, 회전 사각형, 파티클 웨이브, 원형 전환이 강렬하지만 A·D보다 장면 밀도가 낮고 엔딩이 점 하나로 약합니다."
+     }
+    },
+    {
+     "judge": "opus",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-low": "타이포, 모프, 파티클 토러스, 데이터 카운터 등 다양한 장면이 깔끔한 그리드로 구성되어 완성도가 높지만, 마지막 프레임이 점 하나뿐이라 마무리가 약하다.",
+      "build-gpt": "점 웨이브와 컬러 와이프 연출은 깔끔하지만 빈 파란 화면과 선 하나만 있는 프레임이 많아 내용이 빈약하고, 'MADE'가 잘린 채로 보인다.",
+      "build-sonnet": "B와 거의 같은 미니멀 구성이라 장면이 단조롭고, 마지막 'MADE' 글자가 더 많이 잘려 보인다.",
+      "opus-solo": "글리치 타이포, 베지어 커브 UI, 파티클 텍스트, 네온 3D 리본, 시그니처 엔딩까지 장면이 가장 풍부하고 세련되어 쇼릴다운 완성도가 가장 높다.",
+      "build-opus": "B·C와 사실상 같은 미니멀 시퀀스라 볼거리가 적고 빈 프레임이 많으며, 'MADE' 글자도 잘려 보인다.",
+      "fable-high": "키네틱 타이포, 회전 도형, 파티클 웨이브, 컬러 버스트로 다양성은 좋지만, 마지막 프레임이 거의 비어 있고 전체적인 마감은 A·D보다 조금 덜 정교하다."
+     }
+    },
+    {
+     "judge": "gpt",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-low": "대담한 타이포그래피와 도형·입체 입자·분할 화면이 선명하고 균형 잡힌 쇼릴을 이룬다.",
+      "build-gpt": "구성과 색상은 깔끔하지만 빈 화면이 많고 기법이 단순하며 마지막 문구가 일부 가려진다.",
+      "build-sonnet": "단순한 장면과 넓은 공백이 반복되고 마지막 문구의 잘림이 가장 두드러진다.",
+      "opus-solo": "정교한 도형 변형과 타이밍 시각화, 입자 문자와 입체 곡선이 가장 풍부하고 완성도 높은 쇼릴을 만든다.",
+      "build-opus": "강렬한 색상 대비는 좋지만 장면의 다양성이 부족하고 마지막 문구의 가림이 B보다 두드러진다.",
+      "fable-high": "확대된 반복 문자와 입체 도형, 입자 물결이 역동적이지만 장면별 밀도와 마무리의 완성도가 고르지 않다."
+     }
+    },
+    {
+     "judge": "carbon",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-gpt",
+      "build-opus",
+      "build-sonnet"
+     ],
+     "reasons": {
+      "fable-low": "다채로운 타이포그래피와 3D 파티클, 벤토 그리드까지 시각적 완성도가 매우 높으나 일부 텍스트 대비와 잘림이 아쉽습니다.",
+      "build-gpt": "미니멀한 구성을 보여주지만 중간에 빈 파란 화면이 나타나고 마지막 텍스트 하단이 약간 잘려 있습니다.",
+      "build-sonnet": "단조로운 화면 전개와 빈 프레임이 보이며 마지막 문구의 좌측 하단이 가장 심하게 잘려 있습니다.",
+      "opus-solo": "벡터 그래픽, 이징 그래프, 파티클 및 3D 연출까지 모션 디자이너 쇼릴로서 구성과 완성도가 가장 뛰어납니다.",
+      "build-opus": "전반적으로 단조로운 연출과 빈 화면이 포함되며 마지막 프레임의 텍스트 일부가 가려져 있습니다.",
+      "fable-high": "키네틱 타이포와 입체 파동 등 역동적인 연출이 돋보이지만 상위권에 비해 디테일한 밀도가 다소 부족합니다."
+     }
+    },
+    {
+     "judge": "carbon-video",
+     "ranking": [
+      "fable-high",
+      "fable-low",
+      "opus-solo",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-low": "감각적인 색감과 도형 모핑, 파티클, 대시보드 연출이 유기적인 전환으로 매끄럽게 이어집니다.",
+      "build-gpt": "미니멀한 구성으로 기본적인 모션 원리는 보여주나 화려함이 부족하고 루프 타이밍이 미세하게 어긋납니다.",
+      "build-sonnet": "절제된 그래픽과 타이포그래피 연출은 깔끔하지만 쇼릴로서의 역동성과 밀도가 다소 아쉽습니다.",
+      "opus-solo": "바운딩 박스 UI와 입자 타이포, 3D 매듭 등 다채로운 기법을 선보이나 일부 구간에서 HUD 텍스트가 겹칩니다.",
+      "build-opus": "단정한 미니멀 스타일의 모션 구성을 갖추었으나 프롬프트가 요구한 폭발적인 연출력에는 미치지 못합니다.",
+      "fable-high": "키네틱 타이포, 기하학적 리듬, 3D 파티클 등 수준 높은 모션 그래픽 기법들을 가장 역동적이고 완성도 높게 담아냈습니다."
+     }
+    }
+   ]
+  },
+  "lesson": {
+   "mapping": {
+    "A": "fable-high",
+    "B": "build-gpt",
+    "C": "build-opus",
+    "D": "opus-solo",
+    "E": "fable-low",
+    "F": "build-sonnet"
+   },
+   "votes": [
+    {
+     "judge": "fable",
+     "ranking": [
+      "fable-low",
+      "fable-high",
+      "opus-solo",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-high": "'밥 안 먹고' 훅과 다양한 장면 전환, 한자 풀이까지 구성이 풍성하지만 4번째 장면이 뿌옇게 날아가고 '포도' 글자가 오른쪽 끝에서 잘려 보인다.",
+      "build-gpt": "1,000kg 질문 훅은 좋으나 중반부 글씨가 너무 작고 화면이 휑하며 세 유사작 중 디테일이 가장 적다.",
+      "build-opus": "B와 거의 같은 구성에 바닥 빛과 입자 효과가 조금 더해졌지만 여전히 중반부 글씨가 작고 밀도가 낮다.",
+      "opus-solo": "엽록체 공장 묘사와 분자 표현이 가장 정교하지만 글씨가 작아 가독성이 떨어지고 첫 장면에 플레이어 UI가, 5번째 장면 오른쪽에 회색 사각형이 보인다.",
+      "fable-low": "'아무것도 먹지 않고 283톤' 훅이 강렬하고 글씨가 크고 선명하며 훅-잎-엽록체-정리-타이틀 흐름이 가장 완성도 높고 눈에 띄는 버그가 없다.",
+      "build-sonnet": "B·C와 같은 구성이지만 잎맥, 화학식 표기, 엔딩 방사형 효과가 더해져 셋 중 가장 낫고, 중반부 글씨가 작은 점은 같다."
+     }
+    },
+    {
+     "judge": "opus",
+     "ranking": [
+      "fable-low",
+      "fable-high",
+      "opus-solo",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-low": "‘283톤’이라는 강렬한 숫자로 시작해 엽록체, 반응식, 제목까지 큰 한글 텍스트로 깔끔하게 이어져 몰입감과 완성도가 가장 높다.",
+      "fable-high": "‘밥 안 먹고’로 시작하는 도입과 장면마다 다른 색감이 역동적이지만, 4번째 프레임에서 ‘포도’ 글자가 화면 오른쪽 끝에서 잘린다.",
+      "opus-solo": "산소를 실마리로 잎과 엽록체까지 이어지는 구성이 풍부하지만, 글자가 작고 첫 프레임에 재생 컨트롤 UI가 그대로 보인다.",
+      "build-sonnet": "나무 무게를 묻는 질문형 도입이 좋고 화학식 표기도 더했지만, 화면이 비어 보이고 글자가 너무 작다.",
+      "build-opus": "F와 거의 같은 미니멀 구성에 씨앗 발광 효과만 더해졌고, 여백이 많고 글자가 작아 시선을 끄는 힘이 약하다.",
+      "build-gpt": "C·F와 사실상 같은 단조로운 구성이며 장식 요소가 가장 적어 세 버전 중 완성도가 가장 낮다."
+     }
+    },
+    {
+     "judge": "gpt",
+     "ranking": [
+      "opus-solo",
+      "fable-high",
+      "fable-low",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-high": "도입 문구와 다채로운 장면 전환, 읽기 쉬운 반응식이 돋보이나 일부 강한 발광이 도식을 흐립니다.",
+      "build-gpt": "핵심 개념과 배치는 명확하지만 넓은 여백과 단순한 도형으로 시각적 흡인력이 가장 약합니다.",
+      "build-opus": "안정적인 구성과 은은한 입체감은 좋지만 장면 변화와 마지막 제목의 연출이 단조롭습니다.",
+      "opus-solo": "산소로 호기심을 유도하고 정교한 분자·엽록체 도식과 화려한 제목으로 이어져 가장 완성도가 높습니다.",
+      "fable-low": "큰 글자와 선명한 색으로 시선을 끌지만 도입의 수치 맥락이 부족하고 요약 반응식에서 산소가 빠집니다.",
+      "build-sonnet": "나무의 세부 묘사와 입자·배경 장식이 풍성하지만 설명 글자가 작고 중간 장면의 변화가 제한적입니다."
+     }
+    },
+    {
+     "judge": "carbon",
+     "ranking": [
+      "opus-solo",
+      "fable-high",
+      "fable-low",
+      "build-sonnet",
+      "build-gpt",
+      "build-opus"
+     ],
+     "reasons": {
+      "fable-high": "다채로운 화면 전환과 뛰어난 타이포그래피로 흥미를 끌지만 중간 프레임 우측 텍스트가 약간 잘려 보입니다.",
+      "build-gpt": "무게 변화를 이용한 도입부는 좋으나 전반적인 그래픽 밀도와 시각적 화려함이 다소 단조롭습니다.",
+      "build-opus": "B 및 F와 유사한 구성이나 일부 프레임에서 명칭 라벨과 배경 디테일이 생략되어 완성도가 가장 낮습니다.",
+      "opus-solo": "호기심을 자극하는 도입부와 세련된 그래픽 효과, 명확한 학습 내용 전달까지 시각적 완성도가 가장 뛰어납니다.",
+      "fable-low": "강렬한 숫자 훅과 깔끔한 일러스트가 돋보이지만 요약 수식 프레임에서 산소가 보이지 않아 아쉽습니다.",
+      "build-sonnet": "단순한 그래픽 스타일이지만 화학식 표기와 마지막 타이틀의 배경 효과 등 세부 요소가 잘 갖춰져 있습니다."
+     }
+    },
+    {
+     "judge": "carbon-video",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-sonnet",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "fable-high": "다채로운 그래픽과 역동적인 연출이 돋보이지만 초반 텍스트 일부가 화면 왼쪽 밖으로 잘리는 레이아웃 오류가 있습니다.",
+      "build-gpt": "씨앗에서 나무로 자라는 도입부는 좋으나 후반부 반응식 텍스트가 완성되기 전에 화면이 전환되어 흐름이 아쉽습니다.",
+      "build-opus": "무게 증가를 활용한 도입부와 전반적인 애니메이션 흐름은 무난하지만 시각적 디테일과 강조 연출이 다소 단조롭습니다.",
+      "opus-solo": "호흡을 유도하는 흥미로운 도입부와 매끄러운 화면 전환, 깔끔한 분자 그래픽이 어우러져 완성도가 가장 높습니다.",
+      "fable-low": "강렬한 수치로 호기심을 자극하고 잎에서 세포로 이어지는 줌인 전환과 정보 전달이 오류 없이 깔끔합니다.",
+      "build-sonnet": "나무와 화학식 디테일 및 마지막 배경 효과 등 기본 구성이 안정적이나 전체적인 모션의 역동성은 평이한 편입니다."
+     }
+    }
+   ]
+  },
+  "lesson-rev": {
+   "mapping": {
+    "A": "build-sonnet",
+    "B": "fable-low",
+    "C": "opus-solo",
+    "D": "build-opus",
+    "E": "build-gpt",
+    "F": "fable-high"
+   },
+   "votes": [
+    {
+     "judge": "fable",
+     "ranking": [
+      "fable-low",
+      "opus-solo",
+      "fable-high",
+      "build-sonnet",
+      "build-gpt",
+      "build-opus"
+     ],
+     "reasons": {
+      "build-sonnet": "나무 무게 질문 훅과 분자 라벨은 좋지만 글자가 작고 화면이 비어 보여 임팩트가 약하다.",
+      "fable-low": "'아무것도 먹지 않고 283톤' 훅이 강렬하고 큰 한글 타이포, 엽록체 도식, 한 줄 정리, 타이틀까지 완성도와 가독성이 가장 높다.",
+      "opus-solo": "산소 훅과 단계별 엽록체 설명이 풍부하고 화려하지만 글자가 작고 첫 프레임에 플레이어 UI가 보여 다소 산만하다.",
+      "build-opus": "A·E와 같은 구성인데 라벨과 디테일이 가장 적고 장면이 단순해 셋 중 가장 밋밋하다.",
+      "build-gpt": "A와 거의 같은 구성으로 깔끔하지만 분자 표현과 라벨이 덜 풍부하고 글자가 작다.",
+      "fable-high": "'밥 안 먹고' 훅과 다채로운 장면 전환이 좋으나 네 번째 프레임이 뿌옇게 날아가고 '포도' 글자가 오른쪽에서 잘려 보인다."
+     }
+    },
+    {
+     "judge": "opus",
+     "ranking": [
+      "fable-low",
+      "fable-high",
+      "opus-solo",
+      "build-sonnet",
+      "build-gpt",
+      "build-opus"
+     ],
+     "reasons": {
+      "build-sonnet": "나무 무게로 던지는 질문은 흥미롭지만 글자가 작고 화면이 비어 보이며, D·E와 거의 같은 구성이라 개성이 약하다.",
+      "fable-low": "'283톤' 훅부터 엽록체, 반응식, 제목까지 큼직한 한글 타이포로 깔끔하게 이어지고 눈에 띄는 버그도 없다.",
+      "opus-solo": "산소 질문으로 여는 도입과 연출은 풍부하지만, 글자가 작고 재생바 같은 플레이어 UI가 화면에 보여 완성도가 조금 떨어진다.",
+      "build-opus": "A와 거의 같은 구성인데 질문 힌트가 빠져 있고, 글자도 작고 연출도 밋밋해 몰입감이 가장 약하다.",
+      "build-gpt": "A와 거의 같은 흐름이라 무난하지만, 작은 글자와 빈 화면 때문에 '전력을 다한' 느낌이 부족하다.",
+      "fable-high": "'밥 안 먹고'로 시작하는 훅과 과감한 색감, 다양한 장면 전환이 인상적이지만, 일부 프레임에서 글자가 화면 밖으로 잘린다."
+     }
+    },
+    {
+     "judge": "gpt",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-sonnet",
+      "build-gpt",
+      "build-opus"
+     ],
+     "reasons": {
+      "build-sonnet": "나무의 무게로 호기심을 유도하고 구성이 깔끔하지만 핵심 설명 글씨가 작다.",
+      "fable-low": "강렬한 숫자 도입과 선명한 한글로 시선을 끌지만 요약 도식에서 산소가 빠졌다.",
+      "opus-solo": "산소로 시작하는 도입부터 반응 도식까지 흐름이 명확하고 시각적 완성도가 가장 높다.",
+      "build-opus": "내용과 배치는 안정적이지만 단순한 도형과 밋밋한 마지막 화면이 아쉽다.",
+      "build-gpt": "빛과 발광 효과로 반응을 강조하지만 작은 설명 글씨와 단조로운 마무리가 약하다.",
+      "fable-high": "대담한 색상과 큰 글씨가 매력적이지만 중간 장면의 포도당 글자가 잘려 보인다."
+     }
+    },
+    {
+     "judge": "carbon",
+     "ranking": [
+      "opus-solo",
+      "fable-low",
+      "fable-high",
+      "build-sonnet",
+      "build-gpt",
+      "build-opus"
+     ],
+     "reasons": {
+      "build-sonnet": "깔끔한 그래픽과 정확한 화학식을 갖추었으나 중간 장면의 텍스트가 작고 화면 구성이 다소 단조롭습니다.",
+      "fable-low": "도입부 흡입력과 타이포그래피 완성도가 높지만 요약 식에서 산소가 누락되고 일부 글자가 그래픽과 겹칩니다.",
+      "opus-solo": "도입부 연출부터 엽록체 시각화와 반응식 정리까지 구성이 탄탄하고 시각적 완성도가 가장 뛰어납니다.",
+      "build-opus": "A, E와 유사한 구성이나 주요 라벨과 부연 요소가 생략되어 정보 전달력이 가장 떨어집니다.",
+      "build-gpt": "정돈된 애니메이션 흐름을 보여주지만 A에 비해 화학식 표기가 빠져 있고 화면 밀도가 아쉽습니다.",
+      "fable-high": "다채로운 색감과 역동적인 연출이 돋보이지만 네 번째 장면 우측의 텍스트가 화면 밖으로 잘리는 오류가 있습니다."
+     }
+    },
+    {
+     "judge": "carbon-video",
+     "ranking": [
+      "fable-low",
+      "opus-solo",
+      "build-sonnet",
+      "fable-high",
+      "build-opus",
+      "build-gpt"
+     ],
+     "reasons": {
+      "build-sonnet": "흥미로운 도입부와 깔끔한 그래픽 전환으로 핵심 개념과 화학식을 오류 없이 명확하게 전달합니다.",
+      "fable-low": "초반의 강력한 훅부터 잎과 세포로 이어지는 줌 전환 및 마무리 타이틀까지 모션 완성도와 연출력이 뛰어납니다.",
+      "opus-solo": "호흡을 유도하는 참신한 도입부와 세련된 시각 효과로 몰입감을 주며 단계별 설명 구성이 체계적입니다.",
+      "fable-high": "친숙한 소재와 다채로운 그래픽 연출은 좋으나 초반 화면 이동 중 좌측 텍스트가 잘리는 레이아웃 오류가 있습니다.",
+      "build-opus": "전체적인 흐름과 애니메이션은 안정적이지만 시각적 디테일과 마지막 타이틀 연출이 다소 단조롭습니다.",
+      "build-gpt": "화면 전환이 다소 투박하고 후반부 광합성 반응식에서 마지막 단어가 표시되기 전에 장면이 넘어가는 아쉬움이 있습니다."
+     }
+    }
+   ]
+  }
+ },
+ "spec": {
+  "motion": {
+   "usd": 1.6391,
+   "turns": 29,
+   "seconds": 241,
+   "total_tokens": 339210
+  },
+  "lesson": {
+   "usd": 2.0661,
+   "turns": 31,
+   "seconds": 297,
+   "total_tokens": 409393
+  }
+ },
+ "this_video_scenes": {
+  "model": "claude-fable-5-2",
+  "effort": "low",
+  "total_cost_usd": 3.083312399999999,
+  "num_turns": 24,
+  "duration_ms": 392232
+ },
+ "limits": [
+  "방법마다 1번씩만 실행",
+  "심사는 AI 4명 (사람 심사 아님), 정지 화면 시트 16장 + Gemini 4 Carbon 영상 보기 4장",
+  "값은 API 가격 환산 (Claude Code total_cost_usd, GPT-6.1 Sol은 OpenAI 공식 단가 $2.00/$0.10/$10.00 per 1M)",
+  "브라우저·Node 실행을 막은 조건 — 모든 방법이 결과를 직접 돌려 보지 못함",
+  "Claude Code의 Fable 5.2 기본 effort는 medium이지만 high·low만 잼",
+  "1차 실행 중 4개가 5시간 한도에 걸려 처음부터 다시 돌림 (실패분 값은 제외)",
+  "나눠 만들기 값·토큰·시간에는 설계도(DESIGN.md) 작성분 포함"
+ ]
+}

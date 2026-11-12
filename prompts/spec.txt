@@ -1,0 +1,16 @@
+You are the motion director. Another model will build this piece from your design alone, in one HTML file, without being able to ask you anything. Your job is the design, not the code.
+
+The brief you are designing for:
+"""
+__BRIEF__
+"""
+
+Write the design as one file named DESIGN.md in the current directory. Do not write any HTML, CSS or JavaScript code. Keep it under 900 words. It must be precise enough that two different builders would produce nearly the same piece:
+- concept in two sentences, and why it will impress
+- canvas: full window, 16:9 safe area, background
+- palette (hex) and type (font family, weights, sizes relative to viewport)
+- a timeline table for the whole 15 seconds: time range in seconds, what is on screen, what moves
+- for every animated element: property, from -> to, duration in ms, delay, easing as cubic-bezier, stagger
+- transitions between scenes, the ending, and whether it loops
+- the 3 signature moments that must not be simplified
+Do it in one go, do not ask questions.

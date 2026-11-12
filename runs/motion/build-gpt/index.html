@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0B0F">
+<title>ONE DOT — Motion Design Reel</title>
+<style>
+:root{color-scheme:dark;--ink:#0B0B0F;--bone:#F2EEE6;--red:#FF4A1C;--blue:#2B4BFF;--acid:#D6FF3D}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--ink)}
+body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;user-select:none}
+#film{position:fixed;inset:0;overflow:hidden;background:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:50% 50%}
+.scene{position:absolute;inset:0}.dot,.shock,.ring,.satellite{position:absolute;border-radius:50%}
+.dot{width:48px;height:48px;background:var(--red);transform-origin:50% 100%;will-change:transform}
+.shock{border:2px solid var(--bone);pointer-events:none;will-change:transform,opacity}
+#iris{position:absolute;left:776px;top:426px;width:48px;height:48px;border-radius:50%;background:var(--red);will-change:transform}
+#voice-row{position:absolute;left:800px;top:450px;display:flex;align-items:flex-end;transform:translate(-50%,-50%);color:var(--ink)}
+.letter-box{position:relative;flex:none;overflow:hidden}.glyph{display:block;overflow:visible;will-change:transform}.glyph text{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:700;fill:currentColor}
+#underline{position:absolute;height:12px;background:var(--bone);transform-origin:left center}
+#tiles{position:fixed;inset:0;perspective:1200px;pointer-events:none}
+.tile{position:absolute;width:12.5%;height:25%;background:var(--blue);transform-origin:50% 0;backface-visibility:hidden;will-change:transform}
+#gyro-camera{position:absolute;left:800px;top:450px;perspective:1400px;width:0;height:0}
+#gyro{position:absolute;width:0;height:0;transform-style:preserve-3d}
+.ring-entry{position:absolute;transform-style:preserve-3d}
+.ring{inset:0;border:3px solid var(--bone);transform-style:preserve-3d}
+.ring.acid{border-color:var(--acid)}
+.satellite{width:14px;height:14px;left:calc(50% - 7px);top:-8.5px;background:var(--red)}
+#gyro-dot{left:-24px;top:-24px;transform-origin:center}
+#rule{position:absolute;background:var(--bone);transform-origin:right center}
+#signature-row{position:absolute;left:240px;display:flex;align-items:flex-end;color:var(--bone)}
+#period{width:36px;height:36px;background:var(--red)}
+#subline{position:absolute;left:240px;top:590px;font:400 16px Menlo,Consolas,monospace;letter-spacing:.2em;white-space:nowrap;color:var(--bone)}
+#hud{position:absolute;inset:0;pointer-events:none;color:var(--bone);font:400 14px Menlo,Consolas,monospace;letter-spacing:.2em;text-transform:uppercase;z-index:10;opacity:.6;font-variant-numeric:tabular-nums}
+#reel{position:absolute;top:48px;left:48px}#timecode{position:absolute;top:48px;right:48px}
+#label-window{position:absolute;bottom:48px;left:48px;height:20px;min-width:300px;overflow:hidden}.label{position:absolute;left:0;top:0;white-space:nowrap}
+#progress{position:absolute;right:48px;bottom:48px;width:160px;height:2px;background:currentColor;transform-origin:left center}
+#hud-stage{position:fixed;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;pointer-events:none;z-index:20}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+<main id="film" aria-label="ONE DOT: a fifteen-second motion design showreel">
+<h1 class="sr-only">ONE DOT — Made to Move</h1>
+<div id="stage" aria-hidden="true">
+ <div id="weight" class="scene"><div id="shocks"></div><div id="dots"></div></div>
+ <div id="iris"></div>
+ <div id="voice" class="scene"><div id="voice-row"></div><div id="underline"></div></div>
+ <div id="depth" class="scene"><div id="gyro-camera"><div id="gyro"></div></div></div>
+ <div id="signature" class="scene"><div id="rule"></div><div id="signature-row"></div><div id="period" class="dot"></div><div id="subline">MOTION DESIGN REEL — AVAILABLE NOW</div></div>
+</div>
+<div id="tiles" aria-hidden="true"></div>
+<div id="hud-stage" aria-hidden="true"><div id="hud"><div id="reel">REEL 2026</div><div id="timecode">00:00</div><div id="label-window"><div class="label" id="label-old"></div><div class="label" id="label-new"></div></div><div id="progress"></div></div></div>
+</main>
+<script>
+'use strict';
+// ONE DOT. All poses derive from one clock; there are no chained timers.
+(()=>{
+const $=id=>document.getElementById(id), ink='#0B0B0F', bone='#F2EEE6', red='#FF4A1C', blue='#2B4BFF';
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)), mix=(a,b,p)=>a+(b-a)*p;
+function cubic(x1,y1,x2,y2){
+ const c=(t,a,b)=>3*(1-t)*(1-t)*t*a+3*(1-t)*t*t*b+t*t*t;
+ const d=(t,a,b)=>3*(1-t)*(1-t)*a+6*(1-t)*t*(b-a)+3*t*t*(1-b);
+ return x=>{if(x<=0)return 0;if(x>=1)return 1;let u=x;
+  for(let j=0;j<7;j++){const slope=d(u,x1,x2);if(slope<.000001)break;u=clamp(u-(c(u,x1,x2)-x)/slope)}
+  return c(u,y1,y2);
+ };
+}
+const E={OUT:cubic(.16,1,.3,1),IN:cubic(.7,0,.84,0),INOUT:cubic(.87,0,.13,1),BACK:cubic(.34,1.56,.64,1),UP:cubic(.33,1,.68,1),DOWN:cubic(.32,0,.67,0),LIN:x=>x};
+const p=(t,start,duration,e='OUT')=>E[e](clamp((t-start)/duration));
+const anim=(t,start,duration,a,b,e='OUT')=>mix(a,b,p(t,start,duration,e));
+const show=(el,yes)=>el.style.display=yes?'':'none';
+const move=(el,x,y,sx=1,sy=sx)=>el.style.transform=`translate3d(${x}px,${y}px,0) scale(${sx},${sy})`;
+const film=$('film'),stage=$('stage'),hudStage=$('hud-stage');
+let scale=1;
+function resize(){scale=Math.min(innerWidth/1600,innerHeight/900);const transform=`translate(-50%,-50%) scale(${scale})`;stage.style.transform=transform;hudStage.style.transform=transform;$('tiles').style.perspective=`${1200*scale}px`;}
+addEventListener('resize',resize);resize();
+const dots=Array.from({length:9},(_,i)=>{const el=document.createElement('div');el.className='dot';el.style.background=i===4?red:bone;$('dots').append(el);return el;});
+const shocks=[450,1120,1590].map((at,i)=>{const el=document.createElement('div');el.className='shock';$('shocks').append(el);return{el,at,size:[240,140,80][i]};});
+const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+function makeWord(id,word,size,tracking){
+ ctx.font=`700 ${size}px "Helvetica Neue", Helvetica, Arial, sans-serif`;
+ const metrics=ctx.measureText(word),ascent=metrics.actualBoundingBoxAscent,descent=Math.max(0,metrics.actualBoundingBoxDescent),height=ascent+descent+2;
+ const letters=[...word].map((ch,i)=>{
+  const width=ctx.measureText(ch).width+(i<word.length-1?tracking:0);
+  const box=document.createElement('div');box.className='letter-box';box.style.width=`${width}px`;box.style.height=`${height}px`;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('glyph');svg.setAttribute('width',Math.max(width+20,size));svg.setAttribute('height',height);svg.style.height=`${height}px`;
+  const text=document.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x','0');text.setAttribute('y',ascent+1);text.setAttribute('font-size',size);text.textContent=ch===' '?'\u00a0':ch;svg.append(text);box.append(svg);$(id).append(box);
+  return{box,glyph:svg,width,ch};
+ });
+ return{letters,width:letters.reduce((s,l)=>s+l.width,0),height,ascent,descent};
+}
+const voice=makeWord('voice-row','EMOTION',260,-.04*260);voice.letters[0].box.style.color=bone;
+const title=makeWord('signature-row','MADE TO MOVE',150,-.03*150);
+$('signature-row').style.top=`${545-title.height}px`;
+const restY=545-title.descent-1-18, periodX=240+title.width+14+18;
+const rings=[220,340,460].map((size,i)=>{
+ const entry=document.createElement('div');entry.className='ring-entry';entry.style.cssText=`width:${size}px;height:${size}px;left:${-size/2}px;top:${-size/2}px`;
+ const ring=document.createElement('div');ring.className='ring'+(i===2?' acid':'');const satellite=document.createElement('div');satellite.className='satellite';ring.append(satellite);entry.append(ring);$('gyro').append(entry);return{entry,ring};
+});
+const gyroDot=document.createElement('div');gyroDot.className='dot';gyroDot.id='gyro-dot';$('gyro').append(gyroDot);
+const tiles=Array.from({length:32},(_,i)=>{const col=i%8,row=Math.floor(i/8),el=document.createElement('div');el.className='tile';el.style.left=`${col*12.5}%`;el.style.top=`${row*25}%`;$('tiles').append(el);return{el,col,row};});
+const scenes=[{at:0,label:'01 — WEIGHT'},{at:2500,label:'02 — RHYTHM'},{at:5950,label:'03 — VOICE'},{at:9400,label:'04 — DEPTH'},{at:11900,label:'05 — SIGNATURE'}];
+function squash(t,at,x,y){if(t<at||t>at+180)return[1,1];if(t<at+70)return[anim(t,at,70,1,x),anim(t,at,70,1,y)];return[anim(t,at+70,110,x,1,'BACK'),anim(t,at+70,110,y,1,'BACK')];}
+function dotY(t){
+ if(t<450)return anim(t,0,450,-60,450,'IN');
+ if(t<520)return 450;
+ if(t<820)return anim(t,520,300,450,300,'UP');
+ if(t<1120)return anim(t,820,300,300,450,'DOWN');
+ if(t<1190)return 450;
+ if(t<1390)return anim(t,1190,200,450,400,'UP');
+ if(t<1590)return anim(t,1390,200,400,450,'DOWN');return 450;
+}
+function draw(raw){
+ const t=((raw%15000)+15000)%15000;
+ film.style.background=t<5950?ink:t<9400?red:t<11900?blue:ink;
+ $('hud').style.color=t>=5750&&t<8900?ink:bone;
+ $('timecode').textContent=String(Math.floor(t/1000)).padStart(2,'0')+':'+String(Math.floor((t%1000)*30/1000)).padStart(2,'0');
+ $('progress').style.transform=`scaleX(${t/15000})`;
+ let sceneIndex=0;for(let i=1;i<scenes.length;i++)if(t>=scenes[i].at)sceneIndex=i;
+ const scene=scenes[sceneIndex],dt=t-scene.at,old=$('label-old'),fresh=$('label-new');
+ fresh.textContent=scene.label;fresh.style.opacity=p(dt,0,300);fresh.style.transform=`translateY(${anim(dt,0,300,16,0)}px)`;
+ old.textContent=sceneIndex?scenes[sceneIndex-1].label:'';old.style.opacity=1-p(dt,0,200,'IN');old.style.transform=`translateY(${anim(dt,0,200,0,-16,'IN')}px)`;
+ show($('weight'),t<5450);
+ if(t<5450){
+  dots.forEach((el,i)=>{
+   const central=i===4;show(el,central||t>=1800+30*Math.abs(i-4));
+   let x=anim(t,1800+30*Math.abs(i-4),600,800,320+120*i),y=dotY(t),sx=1,sy=1;
+   if(t>=2500){const phase=clamp((t-2500-75*i)/2000)*4*Math.PI;y=450-140*Math.sin(phase);}
+   if(t>=5100){x=mix(x,800,p(t,5100,350,'IN'));}
+   if(central&&t<1800){for(const [at,a,b] of [[450,1.45,.55],[1120,1.25,.75],[1590,1.1,.9]])if(t>=at&&t<=at+180)[sx,sy]=squash(t,at,a,b);}
+   move(el,x-24,y-24,sx,sy);
+  });
+  shocks.forEach(({el,at,size})=>{const q=p(t,at,600);show(el,t>=at&&t<at+600);el.style.width=el.style.height=`${mix(48,size,q)}px`;el.style.left=`${800-mix(48,size,q)/2}px`;el.style.top=`${474-mix(48,size,q)/2}px`;el.style.opacity=.8*(1-q);});
+ }
+ show($('iris'),t>=5450&&t<5950);
+ if(t>=5450&&t<5950){const s=t<5550?anim(t,5450,100,1,.6,'IN'):anim(t,5550,400,.6,64,'INOUT');$('iris').style.transform=`scale(${s})`;}
+ show($('voice'),t>=5950&&t<9400);
+ if(t>=5950&&t<9400){
+  const shove=p(t,7000,550,'BACK'),width=voice.width-voice.letters[0].width+voice.letters[0].width*shove;
+  voice.letters.forEach(({box,glyph,width},i)=>{if(i===0){box.style.width=`${width*shove}px`;glyph.style.transform=`translateX(${(-1+shove)*100}%)`;}else glyph.style.transform=`translateY(${110*(1-p(t,5950+(i-1)*35,500))}%)`;});
+  $('underline').style.cssText=`left:${800-width/2}px;top:${450+voice.height/2+24}px;width:${width}px;transform:scaleX(${p(t,7500,600,'INOUT')})`;
+ }
+ show($('tiles'),t>=8500&&t<9400);
+ if(t>=8500&&t<9400)tiles.forEach(({el,col,row})=>el.style.transform=`rotateX(${anim(t,8500+40*(col+row),500,-90,0)}deg)`);
+ show($('depth'),t>=9400&&t<11900);
+ if(t>=9400&&t<11900){
+  $('gyro').style.transform=`scaleY(${anim(t,11500,400,1,.01,'IN')})`;
+  rings.forEach(({entry,ring},i)=>{entry.style.transform=`scale(${p(t,9400+i*100,700,'BACK')})`;const dt=t-9400;ring.style.transform=i===0?`rotateX(${dt/1800*360}deg)`:i===1?`rotateY(${dt/2400*360}deg)`:`rotateZ(45deg) rotateX(${-dt/3000*360}deg)`;});
+  gyroDot.style.transform=`scale(${p(t,9500,400,'BACK')})`;
+ }
+ show($('signature'),t>=11900);
+ if(t>=11900){
+  const q=p(t,11900,500,'INOUT'),w=mix(460,1120,q),h=mix(3,2,q);
+  $('rule').style.cssText=`left:${800-w/2}px;top:${mix(450,560,q)-h/2}px;width:${w}px;height:${h}px;transform:scaleX(${1-p(t,14450,400,'INOUT')})`;
+  title.letters.forEach(({glyph},i)=>{
+   const onset=13350+(title.letters.length-1-i)*25;let ripple=0;
+   if(t>=onset&&t<onset+150)ripple=anim(t,onset,150,0,-14,'UP');else if(t>=onset+150&&t<onset+300)ripple=anim(t,onset+150,150,-14,0,'DOWN');
+   const enter=110*(1-p(t,12200+30*i,600)),leave=110*p(t,14400+15*i,300,'IN');glyph.style.transform=`translateY(calc(${enter+leave}% + ${ripple}px))`;
+  });
+  let y=anim(t,12900,450,-60,restY,'IN'),sx=1,sy=1;
+  if(t>=13350&&t<13530)[sx,sy]=squash(t,13350,1.4,.6);
+  if(t>=13420&&t<13570)y=anim(t,13420,150,restY,restY-60,'UP');else if(t>=13570&&t<13720)y=anim(t,13570,150,restY-60,restY,'DOWN');
+  if(t>=14500&&t<14600){sx=anim(t,14500,100,1,1.3);sy=anim(t,14500,100,1,.7);}
+  if(t>=14600){sx=anim(t,14600,100,1.3,.85);sy=anim(t,14600,100,.7,1.2);y=anim(t,14600,350,restY,-60,'IN');}
+  show($('period'),t>=12900);move($('period'),periodX-18,y-18,sx,sy);
+  $('subline').style.opacity=.6*p(t,13600,500)*(1-p(t,14400,200,'IN'));
+  $('subline').style.transform=`translateY(${anim(t,13600,500,12,0)}px)`;
+ }
+ return t;
+}
+let origin=performance.now(),paused=false,held=0,frame=0;
+function tick(now){if(!paused)held=now-origin;draw(held);frame=requestAnimationFrame(tick);}
+// Deterministic transport is also useful for frame-accurate capture. No UI overlays the reel.
+window.reel={duration:15000,seek(ms){held=ms;origin=performance.now()-ms;draw(ms);},pause(){if(!paused)held=performance.now()-origin;paused=true;draw(held);},play(){origin=performance.now()-held;paused=false;},get time(){return ((held%15000)+15000)%15000;},get paused(){return paused;}};
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();paused?window.reel.play():window.reel.pause();}else if(e.key.toLowerCase()==='r')window.reel.seek(0);else if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();window.reel.pause();window.reel.seek(held+(e.key==='ArrowRight'?100:-100));}});
+addEventListener('visibilitychange',()=>{if(!document.hidden&&!paused)origin=performance.now()-held;});
+draw(0);frame=requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

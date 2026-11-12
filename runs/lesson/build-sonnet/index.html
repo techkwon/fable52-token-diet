@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1,000 kg의 비밀 — 광합성</title>
+<style>
+  html,body{margin:0;height:100%;background:#04100C;overflow:hidden}
+  #stage{position:absolute;overflow:hidden;background:#04100C;color:#F4FFF8;
+    font-family:Pretendard,"Pretendard Variable","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    letter-spacing:-0.03em;-webkit-font-smoothing:antialiased;user-select:none}
+  .layer{position:absolute;left:0;top:0;width:100%;height:100%}
+  svg.layer{pointer-events:none}
+  .pos{position:absolute;width:0;height:0}
+  .in{position:absolute;left:0;top:0;white-space:nowrap;line-height:1.2}
+  .mega{font-size:20em;font-weight:900}
+  .counter{font-size:7em;font-weight:900;font-variant-numeric:tabular-nums;transform-origin:0 50%}
+  .head{font-size:5em;font-weight:900}
+  .label{font-size:2.6em;font-weight:700}
+  .cap{font-size:1.8em;font-weight:700}
+  .counter .d{display:inline-block;width:.6em;text-align:center}
+  .counter .cm{display:inline-block;width:.3em;text-align:center}
+  .counter .kg{display:inline-block;margin-left:.3em}
+  .row{display:flex;align-items:center}
+  .m{display:block;overflow:hidden;line-height:1.35}
+  .m>.w{display:block;will-change:transform}
+  .mega .m{line-height:1.25}
+  .head.row{gap:.28em}
+  .eq{gap:.62em}
+  .pill{box-sizing:border-box;padding:.5em 1.45em;border:.24em solid #FFD23F;border-radius:99em;
+    font-size:1em;font-weight:700;line-height:1.2;color:#F4FFF8}
+  .chipwrap{position:relative}
+  .strike{position:absolute;left:-.5em;right:-.5em;top:50%;height:.5em;margin-top:-.25em;background:#FF5A4E;
+    border-radius:1em;transform-origin:0 50%;transform:scaleX(0)}
+  .panel{position:absolute;top:-10%;height:120%;width:130em;left:-15em;display:none}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+(()=>{
+/* ───────── constants ───────── */
+const C={night:'#04100C',deep:'#0B3D2E',chl:'#19E57F',sun:'#FFD23F',water:'#3EC5FF',carbon:'#B8C4C0',coral:'#FF5A4E',paper:'#F4FFF8'};
+const DUR=15000, VH=56.25, CX=50, CY=26;
+const stage=document.getElementById('stage');
+let U=10;
+function fit(){
+  const W=innerWidth,H=innerHeight; const w=Math.min(W,H*16/9), h=w*9/16;
+  stage.style.width=w+'px'; stage.style.height=h+'px';
+  stage.style.left=(W-w)/2+'px'; stage.style.top=(H-h)/2+'px';
+  U=w/100; stage.style.fontSize=U+'px';
+}
+addEventListener('resize',fit); fit();
+
+/* ───────── easing ───────── */
+function bez(a,b,c,d){
+  const cx=3*a,bx=3*(c-a)-cx,ax=1-cx-bx,cy=3*b,by=3*(d-b)-cy,ay=1-cy-by;
+  const X=s=>((ax*s+bx)*s+cx)*s,Y=s=>((ay*s+by)*s+cy)*s,dX=s=>(3*ax*s+2*bx)*s+cx;
+  return x=>{
+    if(x<=0)return 0; if(x>=1)return 1;
+    let s=x;
+    for(let i=0;i<8;i++){const e=X(s)-x; if(Math.abs(e)<1e-6)break; const dd=dX(s); if(Math.abs(dd)<1e-6)break; s-=e/dd;}
+    if(Math.abs(X(s)-x)>1e-5){let lo=0,hi=1;s=x;for(let i=0;i<40;i++){if(X(s)<x)lo=s;else hi=s;s=(lo+hi)/2;}}
+    return Y(s);
+  };
+}
+const OUT=bez(.16,1,.3,1),IN=bez(.7,0,.84,0),IO=bez(.83,0,.17,1),BACK=bez(.34,1.56,.64,1),LIN=x=>x;
+const P=(t,s,d,e=LIN)=>{let p=(t-s)/d;p=p<0?0:p>1?1:p;return e(p);};
+const cl=(v,a=0,b=1)=>v<a?a:v>b?b:v;
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,p)=>{const A=hex(a),B=hex(b);return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*p)).join(',')+')';};
+const rnd=(i,s=1)=>{const x=Math.sin(i*127.1+s*311.7)*43758.5453;return x-Math.floor(x);};
+const qb=(p0,c,p2,u)=>{const a=(1-u)*(1-u),b=2*u*(1-u),d=u*u;return[a*p0[0]+b*c[0]+d*p2[0],a*p0[1]+b*c[1]+d*p2[1]];};
+
+/* ───────── dom helpers ───────── */
+const NS='http://www.w3.org/2000/svg';
+function S(tag,at,parent){const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);if(parent)parent.appendChild(e);return e;}
+function D(cls,parent){const d=document.createElement('div');if(cls)d.className=cls;(parent||stage).appendChild(d);return d;}
+function svgLayer(parent){const s=S('svg',{viewBox:'0 0 100 '+VH,preserveAspectRatio:'none'});s.setAttribute('class','layer');parent.appendChild(s);return s;}
+function T(parent,x,y,cls,html,al,color){
+  const p=D('pos',parent);p.style.left=x+'em';p.style.top=y+'em';
+  const i=D('in '+cls,p);i.innerHTML=html;if(color)i.style.color=color;
+  const base=al==='l'?'translate(0,-50%)':'translate(-50%,-50%)';
+  i.style.transform=base;
+  return {p,i,base};
+}
+const setT=(o,ex)=>{o.i.style.transform=o.base+(ex?' '+ex:'');};
+const mv=(o,dx,dy,op)=>{o.p.style.transform='translate('+(dx*U)+'px,'+(dy*U)+'px)';o.p.style.opacity=op;};
+const draw=(el,p)=>{el.style.strokeDashoffset=1-p;el.style.visibility=p>0.0005?'visible':'hidden';};
+const vis=(el,v)=>{el.style.visibility=v?'visible':'hidden';};
+function maskWord(parent,html,color){const m=D('m',parent);const w=D('w',m);w.innerHTML=html;if(color)w.style.color=color;return w;}
+
+/* ═════════ SCENES 1–2 : seed → tree → question ═════════ */
+const s12=D('layer');
+const bgDeep=D('layer');bgDeep.style.background=C.deep;bgDeep.style.display='none';
+stage.insertBefore(bgDeep,s12);          // bgDeep sits beneath s12
+const svgA=svgLayer(s12);
+
+// ambient spores
+const spores=[];
+for(let i=0;i<26;i++){spores.push({e:S('circle',{r:.12+rnd(i,4)*.22,fill:C.paper},svgA),x:rnd(i,1)*100,y:rnd(i,2)*70,v:.4+rnd(i,3)*1.1,o:.08+rnd(i,5)*.2});}
+// ground
+const ground=S('line',{x1:14,y1:46,x2:14,y2:46,stroke:C.paper,'stroke-opacity':.4,'stroke-width':.2},svgA);
+// dust puff
+const dust=[];for(let i=0;i<7;i++)dust.push(S('circle',{r:.3+rnd(i,7)*.2,fill:C.paper},svgA));
+// seed
+const seedG=S('g',{},svgA);const seedE=S('ellipse',{cx:0,cy:-.55,rx:.8,ry:.55,fill:C.sun},seedG);
+// trunk + branches
+const trunk=S('line',{x1:32,y1:46,x2:32,y2:25,stroke:C.chl,'stroke-width':1.4,'stroke-linecap':'round',pathLength:1},svgA);
+trunk.style.strokeDasharray='1';
+const BY=[40,37,34,31,28,25],BL=[6,8,9,8,6,5];
+const branches=BY.map((y,i)=>{
+  const dir=i%2===0?-1:1,L=BL[i],k=Math.SQRT1_2;
+  const e=S('line',{x1:32,y1:y,x2:32+dir*L*k,y2:y-L*k,stroke:C.chl,'stroke-width':.8,'stroke-linecap':'round',pathLength:1},svgA);
+  e.style.strokeDasharray='1';return e;});
+// canopy (8 + hero)
+const CANO=[[-4.5,-4.5,5],[4.5,-5,4.5],[-8.5,2,5.5],[8.5,2,5],[0,5.5,4.5],[-12,-1.5,4],[12,-1.5,4],[0,-6.5,4]];
+const order=CANO.map((c,i)=>({i,d:Math.hypot(c[0],c[1])})).sort((a,b)=>a.d-b.d).map(o=>o.i);
+const canopy=CANO.map((c,i)=>{
+  const rank=order.indexOf(i)+1;
+  const g=S('g',{},svgA);
+  const fillc=rank%2===1?C.deep:C.chl;
+  S('circle',{cx:0,cy:0,r:c[2],fill:fillc,stroke:C.chl,'stroke-opacity':fillc===C.deep?.35:0,'stroke-width':.18},g);
+  return {g,x:32+c[0],y:17+c[1],start:1720+110*rank};
+});
+// punch sparks
+const sparks=[];for(let i=0;i<14;i++)sparks.push(S('line',{stroke:C.sun,'stroke-width':.35,'stroke-linecap':'round'},svgA));
+
+// html layer (texts) for s12
+const seedLbl=T(s12,39,43,'label','씨앗 0.1 g','c',C.paper);
+const counter=T(s12,56,17,'counter','','l',C.paper);
+const qPos=D('pos',s12);qPos.style.left='56em';qPos.style.top='0em';
+const qLines=[[27,['이','무게,']],[33,['어디서','왔을까?']]].map(([y,ws])=>{
+  const rp=D('pos',qPos);rp.style.top=y+'em';
+  const row=D('in head row',rp);row.style.transform='translate(0,-50%)';
+  return ws.map(w=>maskWord(row,w));
+});
+const qWords=qLines.flat();
+const chip=T(s12,59,41,'label','','c');
+const chipWrap=D('chipwrap',chip.i);const pill=D('pill',chipWrap);pill.textContent='흙?';
+const strike=D('strike',chipWrap);
+
+// hero leaf (above html)
+const svgHero=svgLayer(s12);
+const heroG=S('g',{},svgHero);
+const heroC=S('circle',{cx:0,cy:0,r:6,fill:C.chl},heroG);
+const veinD='M0 4.8 L0 -4.8 M0 2.2 L-3.3 -.2 M0 -.6 L-3.7 -3 M0 2.2 L3.3 -.2 M0 -.6 L3.7 -3';
+S('path',{d:veinD,stroke:C.deep,'stroke-width':.38,'stroke-linecap':'round',fill:'none'},heroG);
+
+/* ═════════ SCENES 3–4 : chloroplast ═════════ */
+const s34=D('layer');
+const svgB=svgLayer(s34);
+const defs=S('defs',{},svgB);
+const blur=S('filter',{id:'bl',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);
+S('feGaussianBlur',{stdDeviation:3.6},blur);
+// cell pattern
+const cells=S('g',{},svgB);
+for(let r=-1;r<=9;r++)for(let c=-2;c<=11;c++){
+  const off=(r%2!==0)?5:0;
+  S('rect',{x:c*10+off-4.7,y:r*7-3.2,width:9.4,height:6.4,rx:2,fill:'none',stroke:C.chl,'stroke-opacity':.12,'stroke-width':.15},cells);
+}
+// beams
+const beamG=S('g',{},svgB);
+const BA=Math.atan2(CY,CX),BLEN=Math.hypot(CX,CY);
+const beams=[-6,-3,0,3,6].map(o=>{
+  const a=BA+o*Math.PI/180;
+  const l=S('line',{x1:0,y1:0,x2:0,y2:0,stroke:C.sun,'stroke-width':.5,'stroke-linecap':'round','stroke-opacity':.9},beamG);
+  const ph=S('line',{x1:0,y1:0,x2:0,y2:0,stroke:C.paper,'stroke-width':.26,'stroke-linecap':'round','stroke-dasharray':'.9 7'},beamG);
+  return {l,ph,c:Math.cos(a),s:Math.sin(a)};
+});
+// glow
+const glow=S('ellipse',{cx:0,cy:0,rx:15,ry:9.5,fill:C.sun,filter:'url(#bl)'},svgB);
+// chloroplast
+const chlG=S('g',{},svgB);
+const chlE=S('ellipse',{cx:0,cy:0,rx:11,ry:6.5,fill:C.chl,stroke:C.paper,'stroke-opacity':.28,'stroke-width':.3},chlG);
+[[-4.2,-2.4,-8],[3.8,-2.9,6],[-3.4,2.3,7],[4.4,2.5,-9]].forEach(([x,y,r])=>{
+  S('rect',{x:-2,y:-.6,width:4,height:1.2,rx:.6,fill:C.deep,transform:`translate(${x} ${y}) rotate(${r})`},chlG);
+  S('rect',{x:-1.6,y:-.28,width:3.2,height:.2,rx:.1,fill:C.chl,'fill-opacity':.35,transform:`translate(${x} ${y}) rotate(${r})`},chlG);
+});
+// water particles
+const waters=[];for(let j=0;j<12;j++){
+  waters.push({s:7700+80*j,
+    p0:[8+(rnd(j,1)-.5)*3,56],c:[5+rnd(j,2)*7,33+rnd(j,3)*7],p2:[CX+(rnd(j,4)-.5)*4,CY+(rnd(j,5)-.5)*3],
+    tr:S('line',{stroke:C.water,'stroke-width':.7,'stroke-linecap':'round','stroke-opacity':.4},svgB),
+    d:S('circle',{r:.6,fill:C.water},svgB)});
+}
+// CO2 molecules
+const cos2=[];for(let k=0;k<12;k++){
+  const g=S('g',{},svgB);
+  S('circle',{cx:-1.05,cy:0,r:.5,fill:C.paper},g);S('circle',{cx:1.05,cy:0,r:.5,fill:C.paper},g);S('circle',{cx:0,cy:0,r:.5,fill:C.carbon},g);
+  cos2.push({s:8500+80*k,p0:[100,20+(rnd(k,6)-.5)*3],c:[76+rnd(k,2)*8,29+rnd(k,3)*5],p2:[CX+(rnd(k,4)-.5)*4,CY+(rnd(k,5)-.5)*3],a0:rnd(k,8)*360,g,
+    tr:S('line',{stroke:C.carbon,'stroke-width':.6,'stroke-linecap':'round','stroke-opacity':.35},svgB)});
+}
+// shock rings
+const ring1=S('circle',{cx:CX,cy:CY,r:6,fill:'none',stroke:C.sun,'stroke-width':.4},svgB);
+const ring2=S('circle',{cx:CX,cy:CY,r:6,fill:'none',stroke:C.paper,'stroke-width':.2},svgB);
+// glucose
+const gluG=S('g',{},svgB);
+const hexPts=[0,1,2,3,4,5].map(k=>{const a=(60*k-90)*Math.PI/180;return(4*Math.cos(a)).toFixed(3)+','+(4*Math.sin(a)).toFixed(3);}).join(' ');
+S('polygon',{points:hexPts,fill:C.coral,'fill-opacity':.2,stroke:C.coral,'stroke-width':.6,'stroke-linejoin':'round'},gluG);
+// oxygen bubbles
+const bubbles=[];for(let i=0;i<14;i++){
+  const r=.5+rnd(i,11)*.7;
+  const g=S('g',{},svgB);
+  S('circle',{r:r,fill:C.paper,'fill-opacity':.08,stroke:C.paper,'stroke-width':.2},g);
+  S('path',{d:`M${-r*.55} ${-r*.1} A${r*.6} ${r*.6} 0 0 1 ${-r*.1} ${-r*.55}`,stroke:C.paper,'stroke-width':.15,fill:'none','stroke-linecap':'round'},g);
+  bubbles.push({g,s:10450+30*i,tx:76+(rnd(i,12)-.5)*12,ty:26+(rnd(i,13)-.5)*12,ph:rnd(i,14)*6.28});
+}
+// labels s34
+const mkLbl=(x,y,txt,col,start,cls='label',base=1)=>({o:T(s34,x,y,cls,txt,'c',col),start,base});
+const labels=[
+  mkLbl(14,12,'빛에너지',C.sun,6900),
+  mkLbl(16,44,'물',C.water,7700),
+  mkLbl(16,47.2,'H₂O',C.water,7700,'cap',.7),
+  mkLbl(82,12,'이산화 탄소',C.carbon,8500),
+  mkLbl(82,15.2,'CO₂',C.carbon,8500,'cap',.7),
+];
+const outLbls=[
+  mkLbl(24,34,'포도당',C.coral,10650),
+  mkLbl(24,37.4,'C₆H₁₂O₆',C.coral,10650,'cap',.7),
+  mkLbl(76,36,'산소',C.paper,10650),
+  mkLbl(76,39.4,'O₂',C.paper,10650,'cap',.7),
+];
+const chlLbl=T(s34,50,16,'cap','엽록체','c',C.paper);
+// equation
+const eqPos=T(s34,50,48,'label row eq','','c');
+const EQ=[['빛에너지',C.sun],['+',C.paper],['물',C.water],['+',C.paper],['이산화 탄소',C.carbon],['→',C.paper],['포도당',C.coral],['+',C.paper],['산소',C.paper]];
+const eqW=EQ.map(([t,c])=>maskWord(eqPos.i,t,c));
+
+/* flash */
+const flash=D('layer');flash.style.background=C.paper;flash.style.opacity=0;flash.style.display='none';
+
+/* ═════════ SCENE 5 ═════════ */
+const wipeSun=D('panel');wipeSun.style.background=C.sun;
+const wipeChl=D('panel');wipeChl.style.background=C.chl;
+const s5=D('layer');
+const svg5=svgLayer(s5);
+const rays=S('g',{},svg5);
+for(let i=0;i<12;i++){const a=i*30,a2=a+13;
+  const p=(r,d)=>(50+r*Math.cos(d*Math.PI/180)).toFixed(2)+','+(27+r*Math.sin(d*Math.PI/180)).toFixed(2);
+  S('polygon',{points:`50,27 ${p(110,a)} ${p(110,a2)}`,fill:C.night,'fill-opacity':.06},rays);}
+const rings5=[24,32].map(r=>{const c=S('circle',{cx:50,cy:27,r,fill:'none',stroke:C.night,'stroke-opacity':.16,'stroke-width':.25,pathLength:1,transform:'rotate(-90 50 27)'},svg5);c.style.strokeDasharray='1';return c;});
+const dots5=[];for(let i=0;i<16;i++)dots5.push({e:S('circle',{r:.3+rnd(i,21)*.6,fill:C.night,'fill-opacity':.14+rnd(i,22)*.1},svg5),x:rnd(i,23)*100,y:rnd(i,24)*60,v:1.5+rnd(i,25)*3});
+const title=T(s5,50,27,'mega row','','c',C.night);
+const glyphs=['광','합','성'].map(g=>{const w=maskWord(title.i,g,C.night);return w;});
+const sub=T(s5,50,44,'label','식물이 빛으로 양분을 만드는 방법','c',C.night);
+
+/* night overlay */
+const night=D('layer');night.style.background=C.night;night.style.opacity=0;
+
+/* ═════════ counter rendering ═════════ */
+let lastV=-1;
+function setCounter(v){
+  if(v===lastV)return;lastV=v;
+  const s=v.toLocaleString('en-US');let h='';
+  for(const ch of s)h+=ch===','?'<span class="cm">,</span>':'<span class="d">'+ch+'</span>';
+  counter.i.innerHTML=h+'<span class="kg">kg</span>';
+}
+
+/* ═════════ pulse (chirp) ═════════ */
+const PT0=6900,PT1=10280,PP0=1200,PP1=300,PK=(PP1-PP0)/(PT1-PT0);
+function pulseVal(t){const tau=t-PT0;const per=PP0+PK*tau;const ph=Math.log(per/PP0)/PK;return .5*(1-Math.cos(2*Math.PI*ph));}
+
+/* ═════════ master render(t) ═════════ */
+function render(t){
+  const inS12=t<6100, inS34=t>=6000&&t<12700;
+  s12.style.display=inS12?'block':'none';
+  bgDeep.style.display=(t>=6100&&t<12700)?'block':'none';
+  s34.style.display=inS34?'block':'none';
+
+  /* ---- scenes 1-2 ---- */
+  if(inS12){
+    s12.style.transform='scale('+(1+.05*Math.min(t,5200)/5200)+')';
+    spores.forEach(s=>{const y=((s.y-t/1000*s.v*3)%70+70)%70-6;s.e.setAttribute('cx',s.x);s.e.setAttribute('cy',y);s.e.setAttribute('fill-opacity',s.o*P(t,300,900));});
+    ground.setAttribute('x2',14+36*P(t,0,500,OUT));vis(ground,t>0);
+    // seed
+    const dy=-50*(1-IN(P(t,100,450)));
+    let sy=1,sx=1;const q=(t-550)/250;
+    if(q>=0&&q<1){sy=q<.5?1-.4*OUT(q*2):.6+.4*BACK((q-.5)*2);sx=1+(1-sy)*.55;}
+    seedG.setAttribute('transform',`translate(32 ${46.05+dy}) scale(${sx} ${sy})`);
+    seedG.style.opacity=1-P(t,1000,260,OUT);vis(seedG,t>=100&&t<1300);
+    // dust
+    const dq=P(t,550,380,OUT);
+    dust.forEach((d,i)=>{const dir=i<4?-1:1,k=(i%4)+1;
+      d.setAttribute('cx',32+dir*(k*.9+1.2)*dq*1.5);d.setAttribute('cy',45.9-(.4+rnd(i,9)*1.6)*dq*2.2);
+      d.setAttribute('fill-opacity',.55*(1-dq));vis(d,t>550&&dq<1);});
+    draw(trunk,P(t,1000,900,OUT));
+    branches.forEach((b,i)=>draw(b,P(t,1300+90*i,500,OUT)));
+    // weigh-in bump on canopy
+    const bq=(t-3100)/300;let bump=1;
+    if(bq>=0&&bq<1)bump=1+.05*(bq<.4?OUT(bq/.4):1-BACK((bq-.4)/.6));
+    const bt=`translate(32 22) scale(${bump}) translate(-32 -22)`;
+    canopy.forEach(c=>{const s=BACK(P(t,c.start,500));
+      c.g.setAttribute('transform',`${bt} translate(${c.x} ${c.y}) scale(${s})`);vis(c.g,s>0.001);});
+    // sparks
+    const sp=OUT(P(t,3100,480));
+    sparks.forEach((l,i)=>{const a=i/14*Math.PI*2,rx=18,ry=7.2;
+      const bx=71+rx*Math.cos(a),by=17+ry*Math.sin(a);
+      const nx=Math.cos(a)*1.0,ny=Math.sin(a)*.5,nl=Math.hypot(nx,ny);
+      const ux=nx/nl,uy=ny/nl,o0=1.2+sp*2.2,o1=o0+1.9*(1-sp*.7);
+      l.setAttribute('x1',bx+ux*o0);l.setAttribute('y1',by+uy*o0);l.setAttribute('x2',bx+ux*o1);l.setAttribute('y2',by+uy*o1);
+      l.setAttribute('stroke-opacity',1-sp);vis(l,t>3100&&sp<1);});
+
+    // seed label
+    const lp=OUT(P(t,550,300));
+    mv(seedLbl,0,0,lp*(1-P(t,1000,200)));setT(seedLbl,`translateX(${-1*(1-lp)*U}px)`);
+
+    // exit factor for counter/question/chip
+    const ex=IN(P(t,5100,250));
+    // counter
+    const ce=OUT(P(t,1000,250));
+    setCounter(Math.round(1000*IO(P(t,1100,2000))));
+    mv(counter,-(1-ce)+4*ex,0,ce*(1-ex));
+    let cs=1;const pq=(t-3100)/300;
+    if(pq>=0&&pq<1)cs=pq<.4?1+.25*OUT(pq/.4):1.25-.25*BACK((pq-.4)/.6);
+    setT(counter,`scale(${cs})`);
+    counter.i.style.color=mix(C.paper,C.sun,cl(BACK(P(t,3100,300))));
+    // question
+    qWords.forEach((w,i)=>{w.style.transform=`translateY(${(1-OUT(P(t,3200+120*i,500)))*110}%)`;});
+    qPos.style.transform=`translateX(${4*ex*U}px)`;qPos.style.opacity=1-ex;
+    // chip
+    const chs=BACK(P(t,4000,300));
+    const shq=P(t,4500,240);const shx=shq<1?.6*Math.sin(shq*Math.PI*6):0;
+    setT(chip,`translateX(${shx*U}px) scale(${Math.max(chs,0)})`);
+    strike.style.transform=`scaleX(${OUT(P(t,4500,200))})`;
+    pill.style.opacity=1-.65*P(t,4500,200);
+    mv(chip,4*ex,0,1-ex);
+    chip.p.style.visibility=chs>0.001?'visible':'hidden';
+
+    // hero leaf
+    let sc;
+    if(t<5200)sc=BACK(P(t,1720,500));else sc=Math.pow(30,P(t,5200,900,IO));
+    heroG.setAttribute('transform',`${bt} translate(32 17) scale(${Math.max(sc,0)})`);
+    heroC.setAttribute('fill',mix(C.chl,C.deep,P(t,5700,400)));
+    vis(heroG,sc>0.001);
+  }
+
+  /* ---- scenes 3-4 ---- */
+  if(inS34){
+    // camera shake on collision
+    const shk=P(t,10400,380),amp=(1-shk)*(1-shk);
+    const shOn=t>=10400&&t<10780;
+    s34.style.transform=shOn?`translate(${Math.sin(t*.11)*.9*amp*U}px,${Math.cos(t*.13)*.7*amp*U}px)`:'';
+    // cells
+    const cp=OUT(P(t,6000,800));
+    cells.setAttribute('transform',`translate(50 ${VH/2}) scale(${1.3-.3*cp}) translate(-50 ${-VH/2})`);
+    cells.setAttribute('opacity',cp);
+    // chloroplast scale
+    let cs;
+    if(t<PT0)cs=BACK(P(t,6300,600));
+    else if(t<PT1)cs=1+.04*pulseVal(t);
+    else if(t<10400)cs=(1+.04*pulseVal(PT1))*(1-IN(P(t,PT1,120)))+.7*IN(P(t,PT1,120));
+    else if(t<10900)cs=t<10600?.7+.45*OUT(P(t,10400,200)):1.15-.15*BACK(P(t,10600,300));
+    else cs=1+.012*Math.sin((t-10900)/380);
+    chlG.setAttribute('transform',`translate(${CX} ${CY}) scale(${Math.max(cs,0)})`);
+    vis(chlG,cs>0.001);
+    const heat=t<10400?.4*P(t,7400,3000,LIN):.4*(1-P(t,10400,600));
+    chlE.setAttribute('fill',mix(C.chl,C.sun,heat));
+    // glow
+    let go=.9*P(t,PT0,PT1-PT0);
+    if(t>10400)go=.9-.62*P(t,10400,700,OUT);
+    glow.setAttribute('transform',`translate(${CX} ${CY}) scale(${Math.max(cs,.01)*(1+.1*Math.max(0,go-.2))})`);
+    glow.setAttribute('opacity',go);vis(glow,go>0.002&&cs>0.001);
+    // chloroplast label
+    mv(chlLbl,0,0,OUT(P(t,6600,300)));
+    // beams
+    const bf=1-P(t,10400,200);
+    beamG.setAttribute('opacity',bf);
+    beams.forEach((b,i)=>{
+      const p=OUT(P(t,6900+60*i,400)),L=BLEN*p;
+      const x=b.c*L,y=b.s*L;
+      [b.l,b.ph].forEach(e=>{e.setAttribute('x2',x);e.setAttribute('y2',y);vis(e,p>0.001);});
+      b.ph.setAttribute('stroke-dashoffset',-(t-6900)*.03);
+    });
+    // particles
+    waters.forEach(w=>{
+      const q=P(t,w.s,900,IN),on=t>w.s&&t<w.s+900;
+      if(on){const a=qb(w.p0,w.c,w.p2,q),b=qb(w.p0,w.c,w.p2,Math.max(0,q-.09));
+        w.d.setAttribute('cx',a[0]);w.d.setAttribute('cy',a[1]);w.d.setAttribute('r',.6*Math.min(1,(1-q)/.07));
+        w.tr.setAttribute('x1',b[0]);w.tr.setAttribute('y1',b[1]);w.tr.setAttribute('x2',a[0]);w.tr.setAttribute('y2',a[1]);}
+      vis(w.d,on);vis(w.tr,on);});
+    cos2.forEach(m=>{
+      const q=P(t,m.s,900,IN),on=t>m.s&&t<m.s+900;
+      if(on){const a=qb(m.p0,m.c,m.p2,q),b=qb(m.p0,m.c,m.p2,Math.max(0,q-.09));
+        const sc=Math.min(1,(1-q)/.07);
+        m.g.setAttribute('transform',`translate(${a[0]} ${a[1]}) rotate(${m.a0+(t-m.s)*.22}) scale(${sc})`);
+        m.tr.setAttribute('x1',b[0]);m.tr.setAttribute('y1',b[1]);m.tr.setAttribute('x2',a[0]);m.tr.setAttribute('y2',a[1]);}
+      vis(m.g,on);vis(m.tr,on);});
+    // input labels
+    labels.forEach(l=>{
+      const b=BACK(P(t,l.start,350));
+      mv(l.o,0,0,cl(b)*l.base*(1-P(t,10400,200)));
+      setT(l.o,`scale(${.6+.4*b})`);});
+    // shock rings
+    const r1=P(t,10400,800,OUT);
+    ring1.setAttribute('r',6+54*r1);ring1.setAttribute('stroke-opacity',1-r1);vis(ring1,t>=10400&&r1<1);
+    const r2=P(t,10440,800,OUT);
+    ring2.setAttribute('r',6+42*r2);ring2.setAttribute('stroke-opacity',(1-r2)*.8);vis(ring2,t>=10440&&r2<1);
+    // glucose
+    const gq=OUT(P(t,10450,700));
+    const gx=CX+(24-CX)*gq,gy=CY;
+    gluG.setAttribute('transform',`translate(${gx} ${gy}) rotate(${-180*(1-gq)}) scale(${gq})`);vis(gluG,t>=10450);
+    // bubbles
+    bubbles.forEach(b=>{
+      const q=OUT(P(t,b.s,700));let x=CX+(b.tx-CX)*q,y=CY+(b.ty-CY)*q;
+      if(t>b.s+700){const d=(t-b.s-700)/1000;y-=.5*d;x+=Math.sin(d*2.2+b.ph)*.25;}
+      b.g.setAttribute('transform',`translate(${x} ${y}) scale(${Math.max(.3,q)})`);vis(b.g,t>=b.s);});
+    // output labels
+    outLbls.forEach(l=>{
+      const b=BACK(P(t,l.start,350));
+      mv(l.o,0,(1-cl(b))*1.2,cl(b)*l.base);
+      setT(l.o,`scale(${.7+.3*b})`);});
+    // equation
+    eqW.forEach((w,i)=>{w.style.transform=`translateY(${(1-OUT(P(t,11000+70*i,400)))*100}%)`;});
+    // flash
+    let fo=0;
+    if(t>=10400&&t<10900)fo=t<10480?(t-10400)/80:1-OUT(P(t,10480,420));
+    flash.style.display=fo>0?'block':'none';flash.style.opacity=fo;
+  }else{
+    flash.style.display='none';
+  }
+
+  /* ---- scene 5 ---- */
+  const wq=IO(P(t,12200,500)),wq2=IO(P(t,12160,500));
+  wipeChl.style.display=t>=12200?'block':'none';
+  wipeSun.style.display=(t>=12160&&t<12800)?'block':'none';
+  wipeChl.style.transform=`translateX(${-130*(1-wq)}%) skewX(-12deg)`;
+  wipeSun.style.transform=`translateX(${-130*(1-wq2)}%) skewX(-12deg)`;
+  const on5=t>=12200;
+  s5.style.display=on5?'block':'none';
+  if(on5){
+    const f=OUT(P(t,12600,800));
+    svg5.style.opacity=f;
+    rays.setAttribute('transform',`rotate(${(t-12200)*.004} 50 27)`);
+    rings5.forEach((r,i)=>draw(r,OUT(P(t,12600+150*i,900))));
+    dots5.forEach(d=>{const y=((d.y-(t-12200)/1000*d.v)%64+64)%64-4;d.e.setAttribute('cx',d.x);d.e.setAttribute('cy',y);});
+    glyphs.forEach((g,i)=>{const p=OUT(P(t,12550+90*i,700));g.style.transform=`translateY(${(1-p)*120}%) rotate(${8*(1-p)}deg)`;});
+    setT(title,`scale(${1+.04*P(t,12550,2050)})`);
+    const sp=OUT(P(t,13100,500));
+    mv(sub,0,2*(1-sp),sp);
+  }
+  night.style.opacity=IN(P(t,14600,400));
+}
+
+/* ═════════ clock ═════════ */
+let clock=0,paused=false,last=performance.now();
+const hm=/t=(\d+)/.exec(location.hash);
+if(hm){clock=+hm[1];paused=true;}
+window.__seek=ms=>{clock=((ms%DUR)+DUR)%DUR;render(clock);};
+addEventListener('keydown',e=>{
+  if(e.code==='Space'){paused=!paused;e.preventDefault();}
+  else if(e.code==='ArrowRight'){clock=(clock+250)%DUR;}
+  else if(e.code==='ArrowLeft'){clock=(clock-250+DUR)%DUR;}
+  else if(e.code==='KeyR'){clock=0;}
+});
+function frame(now){
+  const dt=Math.min(now-last,100);last=now;
+  if(!paused){clock+=dt;if(clock>=DUR)clock-=DUR;}
+  render(clock);
+  requestAnimationFrame(frame);
+}
+render(clock);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fable 5.2 토큰 다이어트 — 실험 결과</title>
+<meta name="description" content="같은 AI가 같은 15초 영상을 effort high와 low로 두 번 만들었습니다. 값, 토큰, 블라인드 심사표를 전부 공개합니다.">
+<meta property="og:title" content="Fable 5.2 토큰 다이어트 — 실험 결과">
+<meta property="og:description" content="같은 AI, 같은 영상, 두 번. 미터기에 찍힌 값과 블라인드 심사표 전부.">
+<meta name="theme-color" content="#0A1A1C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=JetBrains+Mono:wght@400;600&family=Orbit&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A1A1C; --panel:#0E2225; --recess:#051011; --rule:#1C393D; --rule2:#2A4F54;
+  --text:#DDEAE7; --dim:#8DA9A8; --faint:#5F7F80;
+  --yellow:#FFC93C; --green:#39F28A; --cyan:#5FD3FF; --red:#FF5A4F;
+  --num:"Orbit","JetBrains Mono",monospace;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;line-height:1.7;
+  background-image:radial-gradient(1200px 500px at 50% -120px,rgba(95,211,255,.07),transparent 70%)}
+a{color:var(--cyan);text-underline-offset:3px}
+a:hover{color:#fff}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+@media(min-width:720px){.wrap{padding:0 32px}}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.lab{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.y{color:var(--yellow)} .g{color:var(--green)} .c{color:var(--cyan)} .r{color:var(--red)} .dim{color:var(--dim)}
+
+/* top strip */
+.strip{border-bottom:1px solid var(--rule);padding:12px 0}
+.strip .wrap{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#12302b;box-shadow:inset 0 1px 1px rgba(0,0,0,.6);vertical-align:middle;margin-right:7px;transition:background .15s,box-shadow .15s}
+.led.on{background:var(--green);box-shadow:0 0 8px rgba(57,242,138,.7)}
+.led.on.yl{background:var(--yellow);box-shadow:0 0 8px rgba(255,201,60,.7)}
+
+/* sections */
+section{padding:72px 0;border-bottom:1px solid var(--rule)}
+@media(min-width:720px){section{padding:104px 0}}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+.sh .no{font-family:var(--mono);font-size:12px;color:var(--yellow);letter-spacing:.14em}
+.sh .ln{flex:1;height:1px;background:var(--rule)}
+h1,h2,h3{font-family:var(--num);font-weight:400;line-height:1.3;margin:0;text-wrap:balance;word-break:keep-all}
+h1{font-size:clamp(30px,6.2vw,58px);letter-spacing:-.01em}
+h2{font-size:clamp(24px,4vw,36px);margin-bottom:14px}
+h3{font-size:19px;margin:44px 0 16px;color:var(--text)}
+p{margin:0 0 14px;max-width:62ch;word-break:keep-all}
+.lead{color:var(--dim);margin-bottom:32px}
+
+/* recessed readout */
+.win{background:var(--recess);border:1px solid #14292c;border-radius:5px;
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.05);padding:10px 14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px}
+
+/* odometer */
+.odo{display:inline-flex;align-items:flex-end;font-family:var(--num);font-variant-numeric:tabular-nums;line-height:1.1;white-space:nowrap}
+.odo .dg{display:inline-block;height:1.1em;width:.66em;overflow:hidden;text-align:center}
+.odo .col{display:flex;flex-direction:column;transition:transform .9s cubic-bezier(.3,1.04,.5,1);will-change:transform}
+.odo .col span{display:block;height:1.1em;line-height:1.1em}
+.odo .ch{display:inline-block;height:1.1em;line-height:1.1em}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--bg);background:var(--yellow);border:0;border-radius:5px;
+  padding:14px 22px;min-height:48px;cursor:pointer;box-shadow:0 3px 0 #9c7a1c;transition:transform .08s,box-shadow .08s}
+.btn:hover{background:#ffd660}
+.btn:active{transform:translateY(3px);box-shadow:0 0 0 #9c7a1c}
+.btn[disabled]{background:#1a3336;color:var(--dim);box-shadow:none;cursor:default;transform:none}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--rule2);box-shadow:none;padding:10px 16px;min-height:44px;font-size:13px}
+.btn.ghost:hover{border-color:var(--cyan);color:#fff}
+.btn.ghost[aria-pressed=true]{border-color:var(--yellow);color:var(--yellow)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;margin:0 0 18px}
+.seg button{font-family:var(--mono);font-size:13px;color:var(--dim);background:transparent;border:1px solid var(--rule);border-radius:5px;padding:9px 14px;min-height:44px;cursor:pointer}
+.seg button[aria-selected=true]{color:var(--bg);background:var(--yellow);border-color:var(--yellow)}
+
+/* video frames */
+.frame{position:relative;background:#000;border:1px solid var(--rule2);border-radius:6px;overflow:hidden;aspect-ratio:8/5}
+.frame video{display:block;width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;left:8px;top:8px;font-family:var(--num);font-size:18px;line-height:1;color:var(--bg);background:var(--yellow);border-radius:3px;padding:6px 9px 5px}
+
+/* hero */
+.hero{padding-top:56px}
+.hero .kick{margin-bottom:18px}
+.hero p.sub{font-size:19px;color:var(--dim);margin:18px 0 36px}
+.duo{display:grid;gap:20px}
+@media(min-width:760px){.duo{grid-template-columns:1fr 1fr;gap:28px}}
+.cab{padding:12px}
+.cab .meter{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+.cab .who{font-family:var(--mono);font-size:13px;color:var(--faint);min-height:1.5em;transition:color .4s}
+.cab.rev .who{color:var(--text)}
+.cab .fare{font-size:34px;color:#4d4426;transition:color .5s}
+.cab.rev .fare{color:var(--yellow);text-shadow:0 0 14px rgba(255,201,60,.35)}
+.reveal{display:flex;flex-wrap:wrap;align-items:center;gap:20px 28px;margin-top:28px}
+.save{display:flex;align-items:center;gap:14px}
+.save .big{font-size:44px;color:#1c4a37;transition:color .5s}
+.save.rev .big{color:var(--green);text-shadow:0 0 16px rgba(57,242,138,.4)}
+#heroNote{margin-top:22px;color:var(--dim);opacity:0;transition:opacity .6s .9s}
+#heroNote.rev{opacity:1}
+
+/* receipts */
+.rows{display:grid;gap:10px}
+.row{padding:14px 14px 12px;display:grid;gap:10px 16px;grid-template-columns:1fr 1fr}
+.row .nm{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.row .nm b{font-weight:400;font-size:17px}
+.row .nm small{font-family:var(--mono);font-size:11.5px;color:var(--cyan)}
+.row .fare{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}
+.row .fare .odo{font-size:28px;color:var(--yellow)}
+.st .lab{display:block;font-size:10px;margin-bottom:1px}
+.st .v{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:15px}
+.row .bar{grid-column:1/-1}
+.bar{height:6px;background:var(--recess);border-radius:3px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}
+.bar i{display:block;height:100%;width:var(--w,0%);background:var(--yellow);transform:scaleX(0);transform-origin:left;transition:transform 1.1s cubic-bezier(.2,.7,.2,1);border-radius:3px}
+.bar.cy i{background:var(--cyan)} .bar.gr i{background:var(--green)}
+.go .bar i,.bar.go i{transform:scaleX(1)}
+@media(min-width:860px){
+  .row{grid-template-columns:minmax(0,1fr) 150px 120px 70px 60px 80px;align-items:center;padding:14px 20px 14px}
+  .row .nm{grid-column:1;display:block}.row .nm small{display:block;margin-top:2px}
+  .row .fare{grid-column:2}
+  .row .fare .lock{display:none}
+}
+
+/* token section */
+.stacks{display:grid;gap:20px;margin:28px 0 12px}
+@media(min-width:760px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{padding:16px}
+.stk .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px}
+.pile{display:flex;flex-direction:column-reverse;gap:2px;align-content:flex-start}
+.pile .t{display:flex;gap:2px;height:8px}
+.pile .t i{width:8px;height:8px;border-radius:1.5px;background:rgba(95,211,255,.22);flex:none}
+.pile .t i.n{background:var(--yellow)}
+.pile .t i.re{animation:reread .5s both}
+@keyframes reread{0%{background:#dff6ff;box-shadow:0 0 6px var(--cyan)}100%{background:rgba(95,211,255,.22);box-shadow:none}}
+.stk .ft{display:flex;gap:24px;margin-top:14px;border-top:1px solid var(--rule);padding-top:12px}
+.cmp{display:grid;gap:22px;margin-top:36px}
+.cmp .it{display:grid;gap:6px}
+.cmp .ln{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center}
+.cmp .ln .v{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:15px;min-width:9ch;text-align:right}
+.cmp .tt{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.note{border-left:2px solid var(--cyan);padding:4px 0 4px 16px;margin:32px 0 0;color:var(--text)}
+
+/* wall */
+.wallhd{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin:44px 0 16px}
+.wallhd h3{margin:0}
+.wall{display:grid;gap:16px}
+@media(min-width:600px){.wall{grid-template-columns:1fr 1fr}}
+@media(min-width:940px){.wall{grid-template-columns:repeat(3,1fr)}}
+.tile{padding:10px}
+.tile .cap{margin-top:10px;min-height:92px;display:grid;gap:6px;align-content:start}
+.tile .name{font-size:15.5px;line-height:1.4}
+.tile .hid{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.2em}
+.tile .facts{display:flex;flex-wrap:wrap;gap:4px 16px;font-family:var(--num);font-variant-numeric:tabular-nums;font-size:15px}
+.tile .rk{position:absolute;right:8px;top:8px;font-family:var(--num);font-size:15px;background:var(--recess);color:var(--text);border:1px solid var(--rule2);border-radius:3px;padding:5px 8px 4px;line-height:1}
+.tile .rk.first{color:var(--bg);background:var(--green);border-color:var(--green)}
+.tile .revealed{animation:clunk .35s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes clunk{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.run{font-family:var(--mono);font-size:12.5px}
+
+/* ballots */
+.tblw{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 4px;text-align:center;border-bottom:1px solid var(--rule)}
+tr:last-child>td{border-bottom:0}
+thead th{font-weight:400;vertical-align:bottom;font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.35}
+thead th b{display:block;font-family:var(--num);font-weight:400;font-size:17px;color:var(--yellow);margin-bottom:3px}
+tbody th{text-align:left;padding-left:12px;font-weight:400;font-size:14px;white-space:nowrap}
+td .rkc{display:inline-block;min-width:28px;font-family:var(--num);font-variant-numeric:tabular-nums;font-size:16px;line-height:28px;border-radius:3px}
+td .rkc.r1{background:var(--yellow);color:var(--bg)}
+td .rkc.lo{color:var(--faint)}
+tr.vid>*{border-top:1px solid var(--rule2);background:rgba(95,211,255,.04)}
+tr.why td{text-align:left;padding:4px 12px 16px;font-size:14.5px;line-height:1.6;color:var(--dim)}
+tr.why dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px}
+tr.why dt{font-family:var(--num);color:var(--yellow)}
+tr.why dd{margin:0;word-break:keep-all}
+.bctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:14px 0 0}
+.tot{display:grid;gap:28px;margin-top:20px}
+@media(min-width:860px){.tot{grid-template-columns:1fr 1fr;gap:40px}}
+.tot .ln{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:baseline;margin-bottom:12px}
+.tot .ln .bar{grid-column:1/-1}
+.tot .ln .v{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:15px}
+.tot .ln .nm{font-size:15px}
+
+/* spec */
+.trio{display:grid;gap:16px}
+@media(min-width:760px){.trio{grid-template-columns:repeat(3,1fr)}}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--text)}
+.doc{padding:16px;margin-top:10px;max-height:340px;overflow:auto}
+blockquote{margin:16px 0;padding:14px 16px;font-family:var(--mono);font-size:13.5px;line-height:1.7;color:var(--text)}
+.guess{border:1px dashed var(--yellow);border-radius:8px;padding:18px 18px 6px;margin-top:28px}
+.guess .lab{color:var(--yellow);display:block;margin-bottom:8px}
+
+/* details */
+details{border:1px solid var(--rule);border-radius:6px;background:var(--panel);margin-bottom:8px}
+summary{cursor:pointer;padding:13px 14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;list-style:none;min-height:48px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";font-family:var(--mono);color:var(--yellow);margin-right:10px}
+details[open] summary::before{content:"−"}
+summary .s1{flex:1;min-width:0}
+summary .s2{font-family:var(--mono);font-size:12px}
+details .body{padding:4px 14px 16px;border-top:1px solid var(--rule)}
+details .body pre{font-family:var(--body);font-size:15px;line-height:1.7;color:var(--dim);padding-top:12px}
+
+/* readout trio */
+.read{display:grid;gap:12px;grid-template-columns:1fr;margin:28px 0}
+@media(min-width:640px){.read{grid-template-columns:repeat(3,1fr)}}
+.read .win{padding:14px 16px}
+.read .odo,.read .v{font-size:32px}
+.read .v{font-family:var(--num)}
+
+/* how-to */
+.cmds{display:grid;gap:10px;margin:24px 0}
+.cmd{display:grid;gap:4px 20px;padding:12px 16px;align-items:center}
+@media(min-width:640px){.cmd{grid-template-columns:260px 1fr}}
+.cmd code{font-family:var(--mono);font-size:15px;color:var(--green)}
+.cmd span{color:var(--dim);font-size:15.5px}
+ul.plain{margin:0;padding:0;list-style:none}
+ul.plain li{padding:11px 0 11px 22px;border-bottom:1px solid var(--rule);position:relative;word-break:keep-all}
+ul.plain li::before{content:"";position:absolute;left:2px;top:1.35em;width:8px;height:1px;background:var(--yellow)}
+.files{display:grid;gap:28px;margin-top:20px}
+@media(min-width:760px){.files{grid-template-columns:repeat(3,1fr)}}
+.files a{display:block;font-family:var(--mono);font-size:13px;padding:5px 0;overflow-wrap:anywhere}
+.files .lab{display:block;margin-bottom:8px}
+
+footer{padding:56px 0 72px;color:var(--dim)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px 32px;justify-content:space-between;align-items:center}
+footer .ep{font-family:var(--num);color:var(--text);font-size:19px}
+#err{display:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:14px 16px;margin:24px 0;font-size:15px}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="strip"><div class="wrap">
+  <span class="lab"><span class="led on"></span>FARE METER · 실험 기록</span>
+  <span class="lab" id="date"></span>
+</div></div>
+
+<main>
+<!-- 1 HERO -->
+<section class="hero" id="hero"><div class="wrap">
+  <div class="lab kick">누구나쉽게 10편 · Fable 5.2 토큰 다이어트</div>
+  <h1>같은 AI가 같은 영상을<br>두 번 만들었습니다.</h1>
+  <p class="sub">달라진 건 설정 하나, effort. 어느 쪽에 돈이 더 들었을까요?</p>
+  <noscript><p class="r">이 페이지는 data.json을 읽어 그리므로 자바스크립트가 필요합니다.</p></noscript>
+  <div id="err" role="alert"></div>
+  <div class="duo" id="duo"></div>
+  <div class="reveal">
+    <button class="btn" id="revealBtn" type="button">어느 쪽이 비쌀까? ▸ 미터기 켜기</button>
+    <div class="save" id="save" aria-live="polite">
+      <span class="lab">아낀 비율</span>
+      <span class="win"><span class="big num" id="saveNum"></span></span>
+    </div>
+  </div>
+  <p id="heroNote"></p>
+</div></section>
+
+<!-- 2 RECEIPTS -->
+<section id="receipts"><div class="wrap">
+  <div class="sh"><span class="no">02</span><span class="lab">영수증</span><span class="ln"></span></div>
+  <h2>여섯 가지 방법, 두 가지 과제</h2>
+  <p class="lead">방법마다 한 번씩 돌리고 미터기에 찍힌 값을 그대로 적었습니다. 아낀 비율은 Fable high 대비입니다.</p>
+  <div id="receiptsBody"></div>
+</div></section>
+
+<!-- 3 TOKENS -->
+<section id="tokens"><div class="wrap">
+  <div class="sh"><span class="no">03</span><span class="lab">토큰이 간 곳</span><span class="ln"></span></div>
+  <h2>비싼 건 생각이 아니라 다시 읽기였습니다</h2>
+  <p class="lead" id="tokLead"></p>
+  <div class="stacks" id="stacks"></div>
+  <p class="lab">개념도 · 노란 칸 = 새 턴, 푸른 칸 = 그 턴에서 다시 읽는 앞의 턴들 (칸 크기는 실제 토큰 수가 아님)</p>
+  <div class="cmp" id="cmp"></div>
+  <p class="note" id="tokNote"></p>
+</div></section>
+
+<!-- 4 BLIND -->
+<section id="blind"><div class="wrap">
+  <div class="sh"><span class="no">04</span><span class="lab">블라인드 결과</span><span class="ln"></span></div>
+  <h2>이름을 가리고 보세요</h2>
+  <p class="lead">심사 때 쓴 A–F 순서 그대로입니다. 먼저 골라 보고, 그다음에 공개를 누르세요.</p>
+  <div id="walls"></div>
+</div></section>
+
+<!-- 5 BALLOTS -->
+<section id="ballots"><div class="wrap">
+  <div class="sh"><span class="no">05</span><span class="lab">심사표</span><span class="ln"></span></div>
+  <h2>투표용지 전부</h2>
+  <p class="lead" id="balLead"></p>
+  <div class="seg" role="tablist" id="balTabs" aria-label="심사 묶음"></div>
+  <div class="tblw"><table id="balTable"></table></div>
+  <div class="bctl">
+    <button class="btn ghost" type="button" id="whyBtn" aria-pressed="false">심사평 보기</button>
+    <a id="sheetLink" target="_blank" rel="noopener"></a>
+  </div>
+  <div class="tot">
+    <div><h3 id="totH"></h3><div id="totMain"></div></div>
+    <div><h3 id="vidH"></h3><div id="totVid"></div><p class="lab" id="vidJudge" style="text-transform:none;letter-spacing:.04em"></p></div>
+  </div>
+</div></section>
+
+<!-- 6 SPEC -->
+<section id="spec"><div class="wrap">
+  <div class="sh"><span class="no">06</span><span class="lab r">틀린 추천</span><span class="ln"></span></div>
+  <h2>제 추천이 꼴찌였습니다</h2>
+  <p class="lead" id="specLead"></p>
+  <div class="trio" id="trio"></div>
+  <h3>설계도 첫머리 <span class="lab" style="margin-left:8px">runs/motion/spec/DESIGN.md</span></h3>
+  <p class="dim" id="specCost"></p>
+  <div class="win doc"><pre id="specDoc">불러오는 중…</pre></div>
+  <div class="guess">
+    <span class="lab">추측 · 확인하지 않음</span>
+    <p>왜 그랬는지는 재 보지 않았습니다. 짐작만 적습니다. 설계를 시킬 때 저는 이렇게 썼습니다.</p>
+    <blockquote class="win">It must be precise enough that two different builders would produce nearly the same piece — <a href="prompts/spec.txt" target="_blank" rel="noopener">prompts/spec.txt</a></blockquote>
+    <p>"누가 만들어도 거의 같게"를 요구하니, 설계도는 글로 다 적을 수 있는 단순한 작품을 골랐을 수 있습니다. 실제로 세 구현은 거의 같은 영상이 됐고, 심사평에도 "셋이 거의 같은 구성", "빈 화면이 많다"가 반복됩니다.</p>
+    <p>설계도 방식이 나쁜 건지, 제 프롬프트가 나빴던 건지는 이 실험으로 가릴 수 없습니다.</p>
+  </div>
+</div></section>
+
+<!-- 7 FINAL MESSAGES -->
+<section id="finals"><div class="wrap">
+  <div class="sh"><span class="no">07</span><span class="lab">마지막 보고</span><span class="ln"></span></div>
+  <h2>모두 "돌려 보지 못했다"고 적었습니다</h2>
+  <p class="lead">브라우저와 Node 실행을 막아 둔 조건이었습니다. 열두 번 모두, 결과를 직접 실행해 확인하지 못했다고 스스로 밝혔습니다. 원문 그대로입니다.</p>
+  <div id="finalsBody"></div>
+</div></section>
+
+<!-- 8 THIS VIDEO -->
+<section id="self"><div class="wrap">
+  <div class="sh"><span class="no">08</span><span class="lab">이 영상의 장면</span><span class="ln"></span></div>
+  <h2>low도 읽을 게 많으면 비쌉니다</h2>
+  <p class="lead" id="selfLead"></p>
+  <div class="read" id="selfRead"></div>
+  <p class="note" id="selfNote"></p>
+</div></section>
+
+<!-- 9 HOW -->
+<section id="how"><div class="wrap">
+  <div class="sh"><span class="no">09</span><span class="lab">따라 하기</span><span class="ln"></span></div>
+  <h2>Claude Code에서 effort 바꾸기</h2>
+  <div class="cmds">
+    <div class="cmd win"><code>/effort low</code><span>지금 대화에서 바로 낮추기</span></div>
+    <div class="cmd win"><code>/effort status</code><span>지금 값 확인하기</span></div>
+    <div class="cmd win"><code>claude --effort low</code><span>터미널에서 시작할 때 정하기</span></div>
+    <div class="cmd win"><code>⌘⇧E</code><span>데스크톱 앱: 모델 선택 메뉴 → Effort</span></div>
+  </div>
+  <p class="note">Claude Code에서 Fable 5.2의 기본값은 medium입니다. 이 실험은 high와 low만 쟀습니다. medium은 재지 않았습니다.</p>
+</div></section>
+
+<!-- 10 LIMITS + FILES -->
+<section id="limits"><div class="wrap">
+  <div class="sh"><span class="no">10</span><span class="lab">한계와 파일</span><span class="ln"></span></div>
+  <h2>이 실험이 말해 주지 못하는 것</h2>
+  <ul class="plain" id="limitsList"></ul>
+  <h3>파일 전부</h3>
+  <div class="files">
+    <div><span class="lab">데이터 · 설계도</span>
+      <a href="data.json">data.json</a>
+      <a href="runs/motion/spec/DESIGN.md">runs/motion/spec/DESIGN.md</a>
+      <a href="runs/lesson/spec/DESIGN.md">runs/lesson/spec/DESIGN.md</a>
+      <a href="runs/motion/build-opus/DESIGN.md">runs/motion/build-opus/DESIGN.md</a>
+      <a href="runs/motion/build-sonnet/DESIGN.md">runs/motion/build-sonnet/DESIGN.md</a>
+      <a href="runs/motion/build-gpt/DESIGN.md">runs/motion/build-gpt/DESIGN.md</a>
+      <a href="runs/lesson/build-opus/DESIGN.md">runs/lesson/build-opus/DESIGN.md</a>
+      <a href="runs/lesson/build-sonnet/DESIGN.md">runs/lesson/build-sonnet/DESIGN.md</a>
+      <a href="runs/lesson/build-gpt/DESIGN.md">runs/lesson/build-gpt/DESIGN.md</a>
+    </div>
+    <div><span class="lab">프롬프트</span>
+      <a href="prompts/motion.txt">prompts/motion.txt</a>
+      <a href="prompts/lesson.txt">prompts/lesson.txt</a>
+      <a href="prompts/motion.brief">prompts/motion.brief</a>
+      <a href="prompts/lesson.brief">prompts/lesson.brief</a>
+      <a href="prompts/spec.txt">prompts/spec.txt</a>
+      <a href="prompts/build_suffix.txt">prompts/build_suffix.txt</a>
+      <span class="lab" style="margin-top:20px">심사 시트</span>
+      <a href="judge/motion/sheet.jpg">judge/motion/sheet.jpg</a>
+      <a href="judge/motion-rev/sheet.jpg">judge/motion-rev/sheet.jpg</a>
+      <a href="judge/lesson/sheet.jpg">judge/lesson/sheet.jpg</a>
+      <a href="judge/lesson-rev/sheet.jpg">judge/lesson-rev/sheet.jpg</a>
+    </div>
+    <div><span class="lab">스크립트</span>
+      <a href="scripts/run.sh">scripts/run.sh</a>
+      <a href="scripts/run_all.sh">scripts/run_all.sh</a>
+      <a href="scripts/rec.sh">scripts/rec.sh</a>
+      <a href="scripts/record.mjs">scripts/record.mjs</a>
+      <a href="scripts/make_sheet.py">scripts/make_sheet.py</a>
+      <a href="scripts/judge.sh">scripts/judge.sh</a>
+      <a href="scripts/judge_video.py">scripts/judge_video.py</a>
+      <a href="scripts/tally.py">scripts/tally.py</a>
+      <a href="scripts/analyze.py">scripts/analyze.py</a>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span class="ep">누구나쉽게 10편</span>
+  <span>
+    <a id="yt-link" href="https://www.youtube.com/@techkwon" target="_blank" rel="noopener">YouTube에서 보기</a>
+    &nbsp;·&nbsp;
+    <a href="https://techkwon.github.io/fable52-oneshot-bench/" target="_blank" rel="noopener">지난 실험: Fable 5.2 원샷 벤치</a>
+  </span>
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $ = function(id){ return document.getElementById(id); };
+
+function h(tag, attrs){
+  var e = document.createElement(tag), k, v;
+  for (k in (attrs || {})) {
+    v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  function add(c){
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(add); return; }
+    e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  for (var i = 2; i < arguments.length; i++) add(arguments[i]);
+  return e;
+}
+var usd = function(x){ return '$' + Number(x).toFixed(2); };
+var num = function(x){ return Number(x).toLocaleString('en-US'); };
+var mins = function(s){ return (s / 60).toFixed(1); };
+var times = function(a, b){ var r = a / b; return (r >= 10 ? r.toFixed(0) : r.toFixed(1)) + '배'; };
+
+var SHORT = {
+  'fable-high':['Fable','high'], 'fable-low':['Fable','low'], 'opus-solo':['Opus','혼자'],
+  'build-opus':['설계→','Opus'], 'build-sonnet':['설계→','Sonnet'], 'build-gpt':['설계→','GPT']
+};
+var JUDGE = { fable:'Fable 5.2', opus:'Opus 5.5', gpt:'GPT-6.1 Sol', carbon:'Gemini 4 Carbon', 'carbon-video':'Carbon · 영상' };
+var ORDER = { motion:'쇼릴 · 정순', 'motion-rev':'쇼릴 · 역순', lesson:'광합성 · 정순', 'lesson-rev':'광합성 · 역순' };
+
+/* ---------- run-on-view ---------- */
+var viewCbs = new WeakMap();
+var viewIO = 'IntersectionObserver' in window ? new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if (!e.isIntersecting) return;
+    viewIO.unobserve(e.target);
+    var cb = viewCbs.get(e.target); if (cb) cb();
+  });
+}, { threshold: 0.25 }) : null;
+function onView(el, cb){ if (!viewIO) { cb(); return; } viewCbs.set(el, cb); viewIO.observe(el); }
+
+/* ---------- videos: play only while visible ---------- */
+var vidIO = (!RM && 'IntersectionObserver' in window) ? new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    var v = e.target;
+    if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function(){ v.controls = true; }); }
+    else v.pause();
+  });
+}, { threshold: 0.35 }) : null;
+function video(task, key, label){
+  var v = h('video', { src:'video/'+task+'-'+key+'.mp4', poster:'poster/'+task+'-'+key+'.png',
+    muted:true, loop:true, playsinline:true, preload:'none', width:960, height:600, 'aria-label':label });
+  v.muted = true;
+  if (vidIO) vidIO.observe(v); else v.controls = true;
+  return v;
+}
+
+/* ---------- odometer ---------- */
+function odo(text){
+  var w = h('span', { class:'odo', role:'img', 'aria-label':text });
+  String(text).split('').forEach(function(ch){
+    if (/\d/.test(ch)) {
+      var col = h('span', { class:'col' });
+      for (var i = 0; i < 20; i++) col.appendChild(h('span', { text:String(i % 10) }));
+      var d = h('span', { class:'dg', 'aria-hidden':'true' }, col);
+      d.dataset.d = ch;
+      w.appendChild(d);
+    } else w.appendChild(h('span', { class:'ch', 'aria-hidden':'true', text:ch }));
+  });
+  return w;
+}
+function roll(w){
+  [].forEach.call(w.querySelectorAll('.dg'), function(d, i){
+    var col = d.firstChild;
+    col.style.transitionDuration = (700 + i * 190) + 'ms';
+    col.style.transform = 'translateY(-' + ((10 + Number(d.dataset.d)) * 5) + '%)';
+  });
+}
+function odoOnView(text){ var w = odo(text); onView(w, function(){ roll(w); }); return w; }
+function bar(frac, cls){
+  var b = h('div', { class:'bar ' + (cls || '') }, h('i'));
+  b.style.setProperty('--w', Math.max(1.5, frac * 100).toFixed(1) + '%');
+  onView(b, function(){ b.classList.add('go'); });
+  return b;
+}
+
+/* ---------- load ---------- */
+fetch('data.json').then(function(r){
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}).then(render).catch(function(e){
+  var el = $('err'); el.style.display = 'block';
+  el.textContent = 'data.json을 읽지 못했습니다 (' + e.message + '). 파일을 직접 열었다면 로컬 서버(예: python3 -m http.server)로 열어 주세요.';
+});
+
+function render(D){
+  var P = {}; D.pipelines.forEach(function(p){ P[p.key] = p; });
+  var taskKeys = Object.keys(D.tasks);
+  var maxTask = D.scores.max_points_all / taskKeys.length;
+  $('date').textContent = D.date;
+
+  /* ===== 1 hero ===== */
+  var mo = D.tasks.motion.runs, lo = mo['fable-low'], hi = mo['fable-high'];
+  var cabs = [['fable-low','A',lo],['fable-high','B',hi]].map(function(x){
+    var fare = odo(usd(0)); fare.classList.add('fare');
+    var who = h('span', { class:'who', text:'이름 가림' });
+    var cab = h('div', { class:'cab panel' },
+      h('div', { class:'frame' }, video('motion', x[0], '블라인드 영상 ' + x[1]), h('span', { class:'tag', text:x[1] })),
+      h('div', { class:'meter' }, who, h('span', { class:'win' }, fare)));
+    $('duo').appendChild(cab);
+    return { cab:cab, who:who, fare:fare, key:x[0], run:x[2] };
+  });
+  var saveOdo = odo('−00%'); $('saveNum').appendChild(saveOdo);
+  $('revealBtn').addEventListener('click', function(){
+    this.disabled = true; this.textContent = '미터기 공개됨';
+    cabs.forEach(function(c){
+      var fresh = odo(usd(c.run.usd)); fresh.className = c.fare.className;
+      c.fare.parentNode.replaceChild(fresh, c.fare);
+      c.who.textContent = P[c.key].name;
+      c.cab.classList.add('rev');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ roll(fresh); }); });
+    });
+    var s = odo('−' + Math.round(lo.saved_pct) + '%');
+    saveOdo.parentNode.replaceChild(s, saveOdo);
+    $('save').classList.add('rev');
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ roll(s); }); });
+    var pa = D.scores.points.all;
+    $('heroNote').textContent = '블라인드 심사 총점은 low ' + pa['fable-low'] + '점, high ' + pa['fable-high'] +
+      '점 (만점 ' + D.scores.max_points_all + '). 싼 쪽이 밀리지 않았습니다. 아래에 영수증과 투표용지를 전부 붙였습니다.';
+    $('heroNote').classList.add('rev');
+  });
+
+  /* ===== 2 receipts ===== */
+  taskKeys.forEach(function(tk){
+    var T = D.tasks[tk], sp = D.spec[tk];
+    var maxUsd = Math.max.apply(null, D.pipelines.map(function(p){ return T.runs[p.key].usd; }));
+    var rows = h('div', { class:'rows' });
+    D.pipelines.forEach(function(p){
+      var r = T.runs[p.key], isBuild = r.build_usd != null;
+      var led = h('span', { class:'led yl lock' });
+      var b = bar(r.usd / maxUsd);
+      b.firstChild.addEventListener('transitionend', function(){ led.classList.add('on'); });
+      if (RM) led.classList.add('on');
+      var st = function(lab, v, cls){ return h('div', { class:'st' }, h('span', { class:'lab', text:lab }), h('span', { class:'v ' + (cls || ''), text:v })); };
+      rows.appendChild(h('div', { class:'row panel' },
+        h('div', { class:'nm' }, h('b', { text:p.name }),
+          isBuild ? h('small', { text:'설계도 ' + usd(sp.usd) + ' 포함 · 구현만 ' + usd(r.build_usd) }) : null),
+        h('div', { class:'fare' }, h('span', { class:'win' }, odoOnView(usd(r.usd))), led),
+        st('토큰 합계', num(r.total_tokens)),
+        st('분', mins(r.seconds)),
+        st(isBuild ? '턴 (구현)' : '턴', r.turns == null ? '—' : r.turns),
+        st('아낀 비율', r.saved_pct ? '−' + Math.round(r.saved_pct) + '%' : '기준', r.saved_pct ? 'g' : 'dim'),
+        b));
+    });
+    $('receiptsBody').appendChild(h('h3', { text:T.name }));
+    $('receiptsBody').appendChild(rows);
+    $('receiptsBody').appendChild(h('p', { class:'lab', style:'margin-top:12px;text-transform:none;letter-spacing:.03em;max-width:none',
+      text:'설계 → 구현 줄의 값·토큰·시간에는 설계도 작성분(' + usd(sp.usd) + ', ' + num(sp.total_tokens) + ' 토큰, ' + sp.turns + '턴)이 들어 있습니다. 턴 칸은 구현 단계만. GPT는 턴 기록 없음.' }));
+  });
+
+  /* ===== 3 tokens ===== */
+  $('tokLead').textContent = D.tasks.motion.name + ' 기준. high는 ' + hi.turns + '턴, low는 ' + lo.turns + '턴 만에 끝냈습니다.';
+  [['fable-high', hi], ['fable-low', lo]].forEach(function(x){
+    var r = x[1], N = r.turns, cells = N * (N - 1) / 2;
+    var pile = h('div', { class:'pile', 'aria-hidden':'true' }); pile.style.minHeight = (N * 10 - 2) + 'px';
+    var cnt = h('span', { class:'num y', text:'0' }), tcnt = h('span', { class:'num', text:'0' });
+    var led = h('span', { class:'led' });
+    var box = h('div', { class:'stk panel', role:'img', 'aria-label': P[x[0]].name + ': ' + N + '턴, 다시 읽기 ' + cells + '칸' },
+      h('div', { class:'hd' }, h('span', { text:P[x[0]].name }), h('span', { class:'lab' }, led, 'LOCK')),
+      pile,
+      h('div', { class:'ft' },
+        h('div', { class:'st' }, h('span', { class:'lab', text:'턴' }), tcnt),
+        h('div', { class:'st' }, h('span', { class:'lab', text:'다시 읽은 칸' }), cnt)));
+    $('stacks').appendChild(box);
+    var k = 0, read = 0;
+    function step(anim){
+      k++; read += k - 1;
+      var t = h('div', { class:'t' });
+      for (var j = 0; j < k - 1; j++) {
+        var c = h('i', { class: anim ? 're' : '' });
+        if (anim) c.style.animationDelay = (j * 14) + 'ms';
+        t.appendChild(c);
+      }
+      t.appendChild(h('i', { class:'n' }));
+      pile.appendChild(t);
+      tcnt.textContent = k; cnt.textContent = read;
+      if (k >= N) led.classList.add('on');
+    }
+    onView(box, function(){
+      if (RM) { while (k < N) step(false); return; }
+      var iv = setInterval(function(){ step(true); if (k >= N) clearInterval(iv); }, 230);
+    });
+  });
+  var items = [
+    ['턴 수', hi.turns, lo.turns, ''],
+    ['다시 읽기 · cache_read 토큰', hi.tokens.cache_read, lo.tokens.cache_read, 'cy'],
+    ['새로 쓴 것 · output 토큰', hi.tokens.output, lo.tokens.output, '']
+  ];
+  items.forEach(function(it){
+    $('cmp').appendChild(h('div', { class:'it' },
+      h('div', { class:'tt' }, h('span', { text:it[0] }), h('span', { class:'num ' + (it[3] ? 'c' : 'y'), text:times(it[1], it[2]) })),
+      h('div', { class:'ln' }, h('span', { class:'lab', text:'high' }), bar(1, it[3]), h('span', { class:'v', text:num(it[1]) })),
+      h('div', { class:'ln' }, h('span', { class:'lab', text:'low' }), bar(it[2] / it[1], it[3]), h('span', { class:'v', text:num(it[2]) }))));
+  });
+  $('tokNote').textContent = '턴이 하나 늘 때마다 AI는 그때까지의 대화 전체를 처음부터 다시 읽습니다. 그래서 턴은 ' +
+    times(hi.turns, lo.turns) + '인데, 다시 읽은 토큰은 ' + times(hi.tokens.cache_read, lo.tokens.cache_read) + '가 됐습니다.';
+
+  /* ===== 4 blind walls ===== */
+  taskKeys.forEach(function(tk){
+    var T = D.tasks[tk], map = D.ballots[tk].mapping, pts = D.scores.points[tk];
+    var ranked = Object.keys(pts).sort(function(a, b){ return pts[b] - pts[a]; });
+    var wall = h('div', { class:'wall' }), tiles = [];
+    Object.keys(map).sort().forEach(function(L){
+      var key = map[L], r = T.runs[key];
+      var cap = h('div', { class:'cap' },
+        h('div', { class:'hid', text:'■■■■■■■■' }),
+        h('a', { class:'run', href:'runs/' + tk + '/' + key + '/index.html', target:'_blank', rel:'noopener', text:'직접 실행 ↗' }));
+      var frame = h('div', { class:'frame' }, video(tk, key, T.name + ' 영상 ' + L), h('span', { class:'tag', text:L }));
+      wall.appendChild(h('div', { class:'tile panel' }, frame, cap));
+      tiles.push(function(){
+        var rk = ranked.indexOf(key) + 1;
+        frame.appendChild(h('span', { class:'rk revealed' + (rk === 1 ? ' first' : ''), text:rk + '위' }));
+        cap.replaceChild(h('div', { class:'revealed' },
+          h('div', { class:'name', text:P[key].name }),
+          h('div', { class:'facts' }, h('span', { class:'y', text:usd(r.usd) }), h('span', { text:pts[key] + ' / ' + maxTask + '점' }))),
+          cap.firstChild);
+      });
+    });
+    var btn = h('button', { class:'btn', type:'button', text:'공개', onclick:function(){
+      btn.disabled = true; btn.textContent = '공개됨';
+      tiles.forEach(function(f, i){ RM ? f() : setTimeout(f, i * 110); });
+    } });
+    $('walls').appendChild(h('div', { class:'wallhd' }, h('h3', { text:T.name }), btn));
+    $('walls').appendChild(wall);
+  });
+
+  /* ===== 5 ballots ===== */
+  var S = D.scores, V = S.video;
+  $('balLead').textContent = '심사위원은 AI 넷입니다. 여섯 영상의 정지 화면을 한 장에 모은 시트를 보고 1–6위를 매겼고, 순서를 뒤집어 한 번 더 했습니다. 총 ' +
+    S.ballots + '장. 영상을 직접 본 Carbon의 ' + V.ballots + '장은 따로 셉니다.';
+  var cur = Object.keys(D.ballots)[0], why = false;
+  Object.keys(D.ballots).forEach(function(bk){
+    $('balTabs').appendChild(h('button', { type:'button', role:'tab', 'aria-selected': bk === cur ? 'true' : 'false', 'data-k':bk, text:ORDER[bk] || bk,
+      onclick:function(){ cur = bk; drawBallot(); } }));
+  });
+  $('whyBtn').addEventListener('click', function(){
+    why = !why; this.setAttribute('aria-pressed', why); this.textContent = why ? '심사평 접기' : '심사평 보기'; drawBallot();
+  });
+  function drawBallot(){
+    [].forEach.call($('balTabs').children, function(b){ b.setAttribute('aria-selected', b.dataset.k === cur ? 'true' : 'false'); });
+    var B = D.ballots[cur], letters = Object.keys(B.mapping).sort(), tb = $('balTable');
+    tb.textContent = '';
+    tb.appendChild(h('thead', null, h('tr', null, h('th', { text:'' }), letters.map(function(L){
+      var s = SHORT[B.mapping[L]] || [B.mapping[L], ''];
+      return h('th', { scope:'col', title:P[B.mapping[L]].name }, h('b', { text:L }), s[0], h('br'), s[1]);
+    }))));
+    var body = h('tbody');
+    B.votes.forEach(function(v){
+      var isVid = v.judge.indexOf('video') >= 0;
+      body.appendChild(h('tr', { class:isVid ? 'vid' : '' }, h('th', { scope:'row', text:JUDGE[v.judge] || v.judge }), letters.map(function(L){
+        var rk = v.ranking.indexOf(B.mapping[L]) + 1;
+        return h('td', null, h('span', { class:'rkc' + (rk === 1 ? ' r1' : rk > 3 ? ' lo' : ''), text:rk }));
+      })));
+      if (why) body.appendChild(h('tr', { class:'why' }, h('td', { colspan:letters.length + 1 },
+        h('dl', null, letters.map(function(L){ return [h('dt', { text:L }), h('dd', { text:v.reasons[B.mapping[L]] || '' })]; })))));
+    });
+    tb.appendChild(body);
+    var a = $('sheetLink'); a.href = 'judge/' + cur + '/sheet.jpg'; a.textContent = '이 묶음의 심사 시트 보기 (judge/' + cur + '/sheet.jpg) ↗';
+  }
+  drawBallot();
+
+  function totals(el, pts, max, firsts, cls){
+    Object.keys(pts).sort(function(a, b){ return pts[b] - pts[a]; }).forEach(function(k){
+      var f = firsts[k];
+      el.appendChild(h('div', { class:'ln' },
+        h('span', { class:'nm', text:P[k].name }),
+        h('span', { class:'v' }, pts[k] + ' / ' + max, f ? h('span', { class:'y', text:'  1위 ' + f + '번' }) : null),
+        bar(pts[k] / max, cls)));
+    });
+  }
+  $('totH').textContent = '정지 화면 심사 · ' + S.ballots + '장 합계';
+  totals($('totMain'), S.points.all, S.max_points_all, S.firsts, '');
+  $('vidH').textContent = '영상 심사 · ' + V.ballots + '장 (따로)';
+  totals($('totVid'), V.points, V.max_points, V.firsts, 'cy');
+  $('vidJudge').textContent = '심사: ' + V.judge + ' · 1위 6점 … 6위 1점';
+
+  /* ===== 6 spec ===== */
+  var builds = D.pipelines.filter(function(p){ return mo[p.key].build_usd != null; });
+  var vidTop3 = 0, vidN = 0;
+  Object.keys(D.ballots).forEach(function(bk){
+    D.ballots[bk].votes.forEach(function(v){
+      if (v.judge.indexOf('video') < 0) return;
+      vidN++;
+      if (v.ranking.slice(0, 3).some(function(k){ return T_isBuild(k); })) vidTop3++;
+    });
+  });
+  function T_isBuild(k){ return mo[k] && mo[k].build_usd != null; }
+  $('specLead').textContent = '영상에서 제가 권하려던 방법은 "Fable이 설계도를 쓰고, 싼 모델이 만든다"였습니다. 정지 화면 심사 ' +
+    S.spec_builds_bottom3_ballots + '장 전부에서 이 세 가지가 4·5·6위를 차지했습니다.' +
+    (vidN ? ' 영상 심사 ' + vidN + '장 중에서는 ' + vidTop3 + '장에서만 3위 안에 하나가 들었습니다.' : '');
+  var mpts = S.points.motion;
+  builds.forEach(function(p){
+    $('trio').appendChild(h('div', { class:'tile panel' },
+      h('div', { class:'frame' }, video('motion', p.key, p.name)),
+      h('div', { class:'cap', style:'min-height:0' },
+        h('div', { class:'name', text:p.name }),
+        h('div', { class:'facts' }, h('span', { class:'y', text:usd(mo[p.key].usd) }), h('span', { text:mpts[p.key] + ' / ' + maxTask + '점' })),
+        h('a', { class:'run', href:'runs/motion/' + p.key + '/index.html', target:'_blank', rel:'noopener', text:'직접 실행 ↗' }))));
+  });
+  $('specCost').textContent = 'Fable 5.2가 쓴 설계도 한 장. ' + usd(D.spec.motion.usd) + ', ' + D.spec.motion.turns + '턴, ' + mins(D.spec.motion.seconds) + '분.';
+  fetch('runs/motion/spec/DESIGN.md').then(function(r){ if (!r.ok) throw 0; return r.text(); }).then(function(t){
+    $('specDoc').textContent = t.split('\n').slice(0, 14).join('\n') + '\n…';
+  }).catch(function(){ $('specDoc').textContent = '설계도를 불러오지 못했습니다. 아래 파일 목록의 링크로 직접 열어 보세요.'; });
+
+  /* ===== 7 final messages ===== */
+  taskKeys.forEach(function(tk){
+    var T = D.tasks[tk];
+    $('finalsBody').appendChild(h('h3', { text:T.name }));
+    D.pipelines.forEach(function(p){
+      var r = T.runs[p.key];
+      $('finalsBody').appendChild(h('details', null,
+        h('summary', null, h('span', { class:'s1', text:p.name }),
+          h('span', { class:'s2 ' + (r.blocked_runs == null ? 'dim' : 'r'), text: r.blocked_runs == null ? '막힌 횟수 기록 없음' : '실행 시도 ' + r.blocked_runs + '번 막힘' })),
+        h('div', { class:'body' }, h('pre', { text:r.final_message }))));
+    });
+  });
+
+  /* ===== 8 this video ===== */
+  var tv = D.this_video_scenes;
+  $('selfLead').textContent = '이 영상에 들어간 장면들도 Fable 5.2, effort ' + tv.effort + '로 만들었습니다. 그런데 미터기는 이렇게 찍혔습니다.';
+  [['값', usd(tv.total_cost_usd), 'y'], ['턴', String(tv.num_turns), ''], ['분', mins(tv.duration_ms / 1000), '']].forEach(function(x){
+    var o = odoOnView(x[1]); if (x[2]) o.classList.add(x[2]);
+    $('selfRead').appendChild(h('div', { class:'win' }, h('span', { class:'lab', style:'display:block;margin-bottom:4px', text:x[0] }), o));
+  });
+  $('selfNote').textContent = '같은 low인데 쇼릴(' + usd(lo.usd) + ', ' + lo.turns + '턴)보다 비쌉니다. 읽을 자료가 많고 턴이 ' + tv.num_turns +
+    '번으로 늘었기 때문입니다. low가 싼 건 읽을 게 적을 때뿐입니다.';
+
+  /* ===== 10 limits ===== */
+  D.limits.forEach(function(t){ $('limitsList').appendChild(h('li', { text:t })); });
+}
+})();
+</script>
+</body>
+</html>

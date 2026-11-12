@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1,000 kg의 비밀 — 광합성</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --night:#04100C;--deep:#0B3D2E;--chl:#19E57F;--sun:#FFD23F;
+    --water:#3EC5FF;--carbon:#B8C4C0;--coral:#FF5A4E;--paper:#F4FFF8;
+    --u:min(1vw,1.77778vh);
+  }
+  html,body{margin:0;height:100%;background:var(--night);overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center;cursor:pointer}
+  #stage{
+    position:relative;width:calc(var(--u)*100);height:calc(var(--u)*56.25);
+    overflow:hidden;background:var(--night);
+    font-family:Pretendard,"Pretendard Variable","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    letter-spacing:-0.03em;color:var(--paper);
+    -webkit-font-smoothing:antialiased;user-select:none;
+  }
+  #svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .layer{position:absolute;inset:0;pointer-events:none}
+  #s1t{transform-origin:50% 50%}
+  .t{position:absolute;left:0;top:0;white-space:nowrap;line-height:1.2;will-change:transform,opacity;opacity:0}
+  .mega{font-size:calc(var(--u)*20);font-weight:900;line-height:1.1}
+  .counter{font-size:calc(var(--u)*7);font-weight:900;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;transform-origin:0 50%}
+  .head{font-size:calc(var(--u)*5);font-weight:900;transform-origin:0 50%}
+  .label{font-size:calc(var(--u)*2.6);font-weight:700}
+  .cap{font-size:calc(var(--u)*1.8);font-weight:700;letter-spacing:.02em}
+  .c{transform-origin:50% 50%}
+  .mask{display:inline-block;overflow:hidden;vertical-align:bottom;padding:.06em .04em .1em;margin:-.06em -.04em -.1em}
+  .mask>i{display:inline-block;font-style:normal;will-change:transform}
+  .sp{display:inline-block;width:.28em}
+  #chip{border:calc(var(--u)*.25) solid var(--sun);color:var(--sun);border-radius:999px;padding:calc(var(--u)*.45) calc(var(--u)*1.7);line-height:1.1}
+  #strike{position:absolute;left:-12%;width:124%;top:50%;height:calc(var(--u)*.5);margin-top:calc(var(--u)*-.25);background:var(--coral);border-radius:999px;transform-origin:0 50%;transform:rotate(-7deg) scaleX(0)}
+  #eq .tok{margin:0 .22em}
+  #flash{position:absolute;inset:0;background:var(--paper);opacity:0}
+  #vig{position:absolute;inset:0;background:radial-gradient(ellipse 75% 75% at 50% 48%,rgba(0,0,0,0) 55%,rgba(1,6,4,.55) 100%)}
+  #wipe{position:absolute;top:-20%;height:140%;left:-15%;width:130%;background:var(--chl);transform:translateX(-130%) skewX(-12deg);will-change:transform}
+  #wipe::after{content:"";position:absolute;top:0;bottom:0;left:100%;width:calc(var(--u)*2.4);background:var(--sun)}
+  #title{position:absolute;left:50%;top:calc(var(--u)*27);transform:translate(-50%,-50%);color:var(--night);white-space:nowrap;transform-origin:50% 50%}
+  #title .mask{padding:.12em .06em .16em;margin:-.12em -.06em -.16em}
+  #title .mask>i{transform-origin:0 100%;transform:translateY(120%) rotate(8deg)}
+  #sub{color:var(--night)}
+  #grain{position:absolute;inset:-50%;opacity:.07;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+  #night{position:absolute;inset:0;background:var(--night);opacity:1}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="svg" viewBox="0 0 100 56.25" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <radialGradient id="gSun">
+        <stop offset="0" stop-color="#FFD23F" stop-opacity="1"/>
+        <stop offset=".3" stop-color="#FFD23F" stop-opacity=".5"/>
+        <stop offset=".65" stop-color="#FFD23F" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#FFD23F" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gSeed">
+        <stop offset="0" stop-color="#FFD23F" stop-opacity=".55"/>
+        <stop offset="1" stop-color="#FFD23F" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gChlHi" cx=".38" cy=".3" r=".7">
+        <stop offset="0" stop-color="#F4FFF8" stop-opacity=".38"/>
+        <stop offset=".6" stop-color="#F4FFF8" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gBeam" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="50" y2="26">
+        <stop offset="0" stop-color="#FFD23F" stop-opacity=".35"/>
+        <stop offset="1" stop-color="#FFD23F" stop-opacity="1"/>
+      </linearGradient>
+      <radialGradient id="gGround" cx=".5" cy="1" r=".5">
+        <stop offset="0" stop-color="#19E57F" stop-opacity=".22"/>
+        <stop offset="1" stop-color="#19E57F" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <g id="g1"></g>
+    <g id="g3"></g>
+  </svg>
+
+  <div id="vig" class="layer"></div>
+
+  <!-- Scenes 1–2 text (shares the stage push-in) -->
+  <div id="s1t" class="layer">
+    <div id="seedLbl" class="t label">씨앗 0.1 g</div>
+    <div id="counter" class="t counter">0 kg</div>
+    <div id="q1" class="t head"><span class="mask"><i>이</i></span><span class="sp"></span><span class="mask"><i>무게,</i></span></div>
+    <div id="q2" class="t head"><span class="mask"><i>어디서</i></span><span class="sp"></span><span class="mask"><i>왔을까?</i></span></div>
+    <div id="chip" class="t label c">흙?<div id="strike"></div></div>
+  </div>
+
+  <!-- Scenes 3–4 text -->
+  <div id="s3t" class="layer">
+    <div id="capChl" class="t cap c">엽록체</div>
+    <div id="lLight" class="t label c" style="color:var(--sun)">빛에너지</div>
+    <div id="lWater" class="t label c" style="color:var(--water)">물</div>
+    <div id="lCO2" class="t label c" style="color:var(--carbon)">이산화 탄소</div>
+    <div id="lGlu" class="t label c" style="color:var(--coral)">포도당</div>
+    <div id="lO2" class="t label c" style="color:var(--paper)">산소</div>
+    <div id="eq" class="t label c">
+      <span class="mask tok"><i style="color:var(--sun)">빛에너지</i></span><span class="mask tok"><i>+</i></span><span class="mask tok"><i style="color:var(--water)">물</i></span><span class="mask tok"><i>+</i></span><span class="mask tok"><i style="color:var(--carbon)">이산화 탄소</i></span><span class="mask tok"><i>→</i></span><span class="mask tok"><i style="color:var(--coral)">포도당</i></span><span class="mask tok"><i>+</i></span><span class="mask tok"><i>산소</i></span>
+    </div>
+  </div>
+
+  <div id="flash"></div>
+
+  <!-- Scene 5 -->
+  <div id="wipe"></div>
+  <div id="title" class="mega"><span class="mask"><i>광</i></span><span class="mask"><i>합</i></span><span class="mask"><i>성</i></span></div>
+  <div id="sub" class="t label c">식물이 빛으로 양분을 만드는 방법</div>
+
+  <div id="grain" class="layer"></div>
+  <div id="night"></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  /* ---------- palette ---------- */
+  const C = {night:"#04100C",deep:"#0B3D2E",chl:"#19E57F",sun:"#FFD23F",water:"#3EC5FF",carbon:"#B8C4C0",coral:"#FF5A4E",paper:"#F4FFF8"};
+
+  /* ---------- easing ---------- */
+  function bez(x1,y1,x2,y2){
+    const cx=3*x1,bx=3*(x2-x1)-cx,ax=1-cx-bx,cy=3*y1,by=3*(y2-y1)-cy,ay=1-cy-by;
+    const sx=t=>((ax*t+bx)*t+cx)*t, sy=t=>((ay*t+by)*t+cy)*t, ds=t=>(3*ax*t+2*bx)*t+cx;
+    return x=>{
+      if(x<=0) return 0; if(x>=1) return 1;
+      let t=x;
+      for(let i=0;i<8;i++){
+        const e=sx(t)-x; if(Math.abs(e)<1e-6) return sy(t);
+        const d=ds(t); if(Math.abs(d)<1e-6) break;
+        t-=e/d; if(t<0||t>1) break;
+      }
+      let lo=0,hi=1; t=x;
+      for(let i=0;i<40;i++){ if(sx(t)<x) lo=t; else hi=t; t=(lo+hi)/2; }
+      return sy(t);
+    };
+  }
+  const OUT=bez(.16,1,.3,1), IN=bez(.7,0,.84,0), INOUT=bez(.83,0,.17,1), BACK=bez(.34,1.56,.64,1), LIN=x=>x;
+  const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+  const lerp=(a,b,p)=>a+(b-a)*p;
+  const tw=(t,s,d,e=LIN)=>e(clamp((t-s)/d));
+  const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const mix=(a,b,p)=>{const A=hex(a),B=hex(b);return "rgb("+A.map((v,i)=>Math.round(lerp(v,B[i],clamp(p)))).join(",")+")";};
+  function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const R=rng(20261112);
+
+  /* ---------- dom helpers ---------- */
+  const NS="http://www.w3.org/2000/svg";
+  const S=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;};
+  const $=id=>document.getElementById(id);
+  const stage=$("stage");
+  let U=stage.clientWidth/100;
+  addEventListener("resize",()=>{U=stage.clientWidth/100;});
+
+  // anchor text elements in u
+  const place=(el,x,y)=>{el.style.left=`calc(var(--u)*${x})`;el.style.top=`calc(var(--u)*${y})`;};
+  // set transform for a text node; ax = anchor x (-50 centre, 0 left)
+  const setT=(el,{ax=-50,dx=0,dy=0,s=1,o=1,extra=""})=>{
+    el.style.transform=`translate(${ax}%,-50%) translate(${(dx*U).toFixed(2)}px,${(dy*U).toFixed(2)}px) scale(${s.toFixed(4)})${extra}`;
+    el.style.opacity=clamp(o).toFixed(3);
+  };
+
+  /* =========================================================
+     SCENES 1–2 : seed → tree → weigh-in → question
+     ========================================================= */
+  const g1=$("g1");
+  // ambient motes
+  const motes=[];
+  for(let i=0;i<22;i++){
+    motes.push({el:S("circle",{r:(0.08+R()*0.16).toFixed(3),fill:C.paper},g1),x:R()*100,y:R()*56,v:0.4+R()*1.2,o:0.08+R()*0.25,ph:R()*6.28});
+  }
+  const groundGlow=S("ellipse",{cx:32,cy:46,rx:22,ry:6,fill:"url(#gGround)",opacity:0},g1);
+  const ground=S("line",{x1:14,y1:46,x2:50,y2:46,stroke:C.paper,"stroke-opacity":.4,"stroke-width":.2,"stroke-linecap":"round"},g1);
+
+  const tree=S("g",{},g1);
+  const trunk=S("path",{d:"M32 46 L32 25",stroke:C.chl,"stroke-width":1.4,"stroke-linecap":"round",fill:"none",pathLength:1,"stroke-dasharray":"1 2"},tree);
+  const branches=[];
+  [40,37,34,31,28,25].forEach((y,i)=>{
+    const dir=i%2===0?-1:1, L=[6,8,9,8,6,5][i], k=Math.SQRT1_2;
+    const el=S("path",{d:`M32 ${y} L${32+dir*L*k} ${y-L*k}`,stroke:C.chl,"stroke-width":.8,"stroke-linecap":"round",fill:"none",pathLength:1,"stroke-dasharray":"1 2"},tree);
+    branches.push(el);
+  });
+  // canopy: centre-out order (index 0 = hero leaf)
+  const canopyDef=[
+    [32,17,6],[27,12,4.6],[37,12,4.6],[25,21.5,4.5],[39,21.5,4.5],[22,17.5,5],[42,17.5,5],[21,14,4],[43,14,4]
+  ];
+  const canopy=S("g",{},tree);
+  const leaves=[];
+  // draw outermost first so the inner (and hero) leaves sit on top
+  for(let i=canopyDef.length-1;i>=0;i--){
+    const [x,y,r]=canopyDef[i];
+    const el=S("circle",{cx:x,cy:y,r:r,fill:i%2===0?C.chl:C.deep},canopy);
+    leaves[i]={el,x,y,r};
+  }
+  const hero=leaves[0];
+  // hero leaf lives in its own top group so the dive can cover everything
+  const heroG=S("g",{},g1);
+  heroG.appendChild(hero.el);
+
+  const seedG=S("g",{},g1);
+  const seedHalo=S("circle",{cx:0,cy:-.55,r:3,fill:"url(#gSeed)"},seedG);
+  const seed=S("ellipse",{cx:0,cy:-.55,rx:.8,ry:.55,fill:C.sun},seedG);
+  const burst=S("circle",{cx:32,cy:45.5,r:1,fill:"none",stroke:C.sun,"stroke-width":.25,opacity:0},g1);
+
+  const s1t=$("s1t"), seedLbl=$("seedLbl"), counter=$("counter"), q1=$("q1"), q2=$("q2"), chip=$("chip"), strike=$("strike");
+  place(seedLbl,39,43); place(counter,56,17); place(q1,56,27); place(q2,56,33); place(chip,59,41);
+  const qWords=[...q1.querySelectorAll(".mask>i"),...q2.querySelectorAll(".mask>i")];
+
+  /* =========================================================
+     SCENES 3–4 : chloroplast collision
+     ========================================================= */
+  const g3=$("g3");
+  const bg3=S("rect",{x:-1,y:-1,width:102,height:58.25,fill:C.deep,display:"none"},g3);
+  const cells=S("g",{opacity:0},g3);
+  for(let r=-1;r<9;r++){
+    for(let c=-1;c<11;c++){
+      const x=c*10+(r%2?5:0), y=r*7;
+      S("rect",{x:x+.3,y:y+.3,width:9.4,height:6.4,rx:2,fill:"none",stroke:C.chl,"stroke-opacity":.12,"stroke-width":.15},cells);
+    }
+  }
+  const CX=50, CY=26;
+  const glow=S("circle",{cx:CX,cy:CY,r:24,fill:"url(#gSun)",opacity:0},g3);
+
+  // light beams
+  const beamG=S("g",{},g3);
+  const base=Math.atan2(CY,CX), BL=Math.hypot(CX,CY);
+  const beams=[-6,-3,0,3,6].map(d=>{
+    const a=base+d*Math.PI/180;
+    const ex=Math.cos(a)*BL, ey=Math.sin(a)*BL;
+    const halo=S("line",{x1:0,y1:0,x2:0,y2:0,stroke:C.sun,"stroke-opacity":.12,"stroke-width":2.2,"stroke-linecap":"round"},beamG);
+    const core=S("line",{x1:0,y1:0,x2:0,y2:0,stroke:"url(#gBeam)","stroke-width":.5,"stroke-linecap":"round"},beamG);
+    const flow=S("line",{x1:0,y1:0,x2:0,y2:0,stroke:C.paper,"stroke-opacity":.7,"stroke-width":.22,"stroke-linecap":"round","stroke-dasharray":"1.2 4.8"},beamG);
+    return {ex,ey,halo,core,flow};
+  });
+
+  // water stream
+  const waterG=S("g",{},g3);
+  const water=[];
+  for(let i=0;i<12;i++){
+    water.push({el:S("circle",{r:.6,fill:C.water,opacity:0},waterG),cx:16+R()*6,cy:8+R()*6,jx:(R()-.5)*1.2,jy:(R()-.5)*1.2});
+  }
+  // CO2 stream
+  const co2G=S("g",{},g3);
+  const co2=[];
+  for(let i=0;i<12;i++){
+    const g=S("g",{opacity:0},co2G);
+    S("circle",{cx:-1,cy:0,r:.5,fill:C.paper},g);
+    S("circle",{cx:1,cy:0,r:.5,fill:C.paper},g);
+    S("circle",{cx:0,cy:0,r:.5,fill:C.carbon},g);
+    co2.push({el:g,cx:72+R()*8,cy:4+R()*6,rot0:R()*180,spin:(R()>.5?1:-1)*(200+R()*260)});
+  }
+
+  // chloroplast
+  const chlG=S("g",{},g3);
+  const chlBody=S("g",{},chlG);
+  S("ellipse",{cx:0,cy:0,rx:11,ry:6.5,fill:C.chl},chlBody);
+  S("ellipse",{cx:0,cy:0,rx:11,ry:6.5,fill:"url(#gChlHi)"},chlBody);
+  S("ellipse",{cx:0,cy:0,rx:10.1,ry:5.7,fill:"none",stroke:C.deep,"stroke-opacity":.35,"stroke-width":.18},chlBody);
+  [[-5.2,-1.9,-8],[0.6,-2.6,6],[-2.2,2.1,4],[4.4,1.8,-6]].forEach(([x,y,r])=>{
+    S("rect",{x:x-2,y:y-.6,width:4,height:1.2,rx:.6,fill:C.deep,transform:`rotate(${r} ${x} ${y})`},chlBody);
+  });
+
+  const ring=S("circle",{cx:CX,cy:CY,r:6,fill:"none",stroke:C.sun,"stroke-width":.4,opacity:0},g3);
+  const ring2=S("circle",{cx:CX,cy:CY,r:6,fill:"none",stroke:C.paper,"stroke-width":.15,opacity:0},g3);
+
+  // outputs
+  const gluG=S("g",{opacity:0},g3);
+  const hexPts=r=>Array.from({length:6},(_,i)=>{const a=Math.PI/180*(60*i-90);return `${(Math.cos(a)*r).toFixed(3)},${(Math.sin(a)*r).toFixed(3)}`;}).join(" ");
+  S("polygon",{points:hexPts(4),fill:C.coral,"fill-opacity":.2,stroke:C.coral,"stroke-width":.6,"stroke-linejoin":"round"},gluG);
+  S("polygon",{points:hexPts(2.1),fill:"none",stroke:C.coral,"stroke-opacity":.45,"stroke-width":.2,"stroke-linejoin":"round"},gluG);
+
+  const o2G=S("g",{},g3);
+  const bubbles=[];
+  for(let i=0;i<14;i++){
+    const a=R()*Math.PI*2, d=Math.sqrt(R())*6;
+    bubbles.push({el:S("circle",{r:(0.5+R()*0.7).toFixed(3),fill:"none",stroke:C.paper,"stroke-width":.18,opacity:0},o2G),
+      tx:76+Math.cos(a)*d, ty:26+Math.sin(a)*d*.8, ph:R()*6.28, wob:.2+R()*.35});
+  }
+
+  const capChl=$("capChl"), lLight=$("lLight"), lWater=$("lWater"), lCO2=$("lCO2"), lGlu=$("lGlu"), lO2=$("lO2"), eq=$("eq");
+  place(capChl,50,16); place(lLight,14,12); place(lWater,16,44); place(lCO2,82,12); place(lGlu,24,34); place(lO2,76,36); place(eq,50,48);
+  const eqToks=[...eq.querySelectorAll(".mask>i")];
+  const flash=$("flash");
+
+  /* =========================================================
+     SCENE 5
+     ========================================================= */
+  const wipe=$("wipe"), title=$("title"), sub=$("sub"), night=$("night"), grain=$("grain");
+  const glyphs=[...title.querySelectorAll(".mask>i")];
+  place(sub,50,44);
+
+  /* ---------- pulse phase (period 1200 → 300 ms, 6900–10280) ---------- */
+  const P0=1200,P1=300,PT0=6900,PT1=10280,PK=(P1-P0)/(PT1-PT0);
+  const pulsePhase=t=>{const tt=clamp(t,PT0,PT1);return Math.log((P0+PK*(tt-PT0))/P0)/PK;};
+
+  const show=(el,on)=>{const v=on?"":"none";if(el.style.display!==v)el.style.display=v;};
+  const showS=(el,on)=>{const v=on?"inline":"none";if(el.getAttribute("display")!==v)el.setAttribute("display",v);};
+  const qbez=(a,c,b,p)=>(1-p)*(1-p)*a+2*p*(1-p)*c+p*p*b;
+
+  /* =========================================================
+     RENDER — everything is a pure function of t (ms)
+     ========================================================= */
+  function render(t){
+    /* ----- scenes 1–2 ----- */
+    const s1on=t<6100;
+    showS(g1,s1on); show(s1t,t<5500);
+    if(s1on){
+      const ss=1+0.05*clamp(t/5200);
+      const sT=`translate(50 28.125) scale(${ss}) translate(-50 -28.125)`;
+      g1.setAttribute("transform",sT);
+      s1t.style.transform=`scale(${ss})`;
+
+      motes.forEach(m=>{
+        const y=((m.y-t*m.v*0.0012)%60+60)%60-2;
+        m.el.setAttribute("cx",(m.x+Math.sin(t*0.0007+m.ph)*0.6).toFixed(2));
+        m.el.setAttribute("cy",y.toFixed(2));
+        m.el.setAttribute("opacity",(m.o*tw(t,0,800)).toFixed(3));
+      });
+
+      // ground
+      const gp=tw(t,0,500,OUT);
+      ground.setAttribute("transform",`translate(32 0) scale(${gp} 1) translate(-32 0)`);
+      groundGlow.setAttribute("opacity",(tw(t,1000,1500,OUT)*(1-tw(t,5100,250))).toFixed(3));
+
+      // seed drop + squash
+      const drop=tw(t,100,450,IN);
+      const sp=clamp((t-550)/250);
+      let sy=1,sx=1;
+      if(sp>0&&sp<1){
+        if(sp<0.35){const k=OUT(sp/0.35);sy=lerp(1,0.6,k);}
+        else{const k=BACK((sp-0.35)/0.65);sy=lerp(0.6,1,k);}
+        sx=1+(1-sy)*0.5;
+      }
+      const seedFade=1-tw(t,1000,500,IN);
+      seedG.setAttribute("transform",`translate(32 ${(46.05-50*(1-drop)).toFixed(3)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+      seedG.setAttribute("opacity",(t<100?0:seedFade).toFixed(3));
+      seedHalo.setAttribute("opacity",(tw(t,550,300,OUT)).toFixed(3));
+      // seed "erupts"
+      const bp=tw(t,1000,650,OUT);
+      burst.setAttribute("r",lerp(.8,6,bp).toFixed(3));
+      burst.setAttribute("opacity",(t>=1000?0.9*(1-bp):0).toFixed(3));
+
+      // seed label
+      const lo=tw(t,550,300,OUT)*(1-tw(t,1000,200));
+      setT(seedLbl,{ax:0,dx:-1*(1-tw(t,550,300,OUT)),o:lo});
+
+      // trunk & branches
+      const tp=tw(t,1000,900,OUT);
+      trunk.setAttribute("stroke-dashoffset",(1-tp).toFixed(4));
+      trunk.setAttribute("opacity",tp>0.002?1:0);
+      branches.forEach((b,i)=>{
+        const p=tw(t,1300+i*90,500,OUT);
+        b.setAttribute("stroke-dashoffset",(1-p).toFixed(4));
+        b.setAttribute("opacity",p>0.002?1:0);
+      });
+
+      // canopy pop (centre-out) + weigh-in thump
+      const thump=t>=3100&&t<3400?Math.sin(Math.PI*clamp((t-3100)/300))*0.035:0;
+      leaves.forEach((l,i)=>{
+        let s=Math.max(0,tw(t,1720+i*110,500,BACK));
+        if(i===0){
+          // hero leaf: grow, thump, then DIVE
+          const dive=tw(t,5200,900,INOUT);
+          s=s*(1+thump)*lerp(1,30,dive);
+          const col=mix(C.chl,C.deep,tw(t,5700,400));
+          l.el.setAttribute("fill",col);
+          l.el.setAttribute("transform",`translate(${l.x} ${l.y}) scale(${s.toFixed(4)}) translate(${-l.x} ${-l.y})`);
+        }else{
+          const ss2=s*(1+thump);
+          l.el.setAttribute("transform",`translate(${l.x} ${l.y}) scale(${ss2.toFixed(4)}) translate(${-l.x} ${-l.y})`);
+        }
+      });
+
+      // counter + punch
+      const leave=tw(t,5100,250,IN);
+      const val=Math.round(1000*tw(t,1100,2000,INOUT));
+      const txt=val.toLocaleString("en-US")+" kg";
+      if(counter.textContent!==txt) counter.textContent=txt;
+      let cs=1, cc=0;
+      if(t>=3100){
+        const p=clamp((t-3100)/300);
+        cc=OUT(clamp(p/0.4));
+        cs=p<0.4?lerp(1,1.25,OUT(p/0.4)):lerp(1.25,1,BACK((p-0.4)/0.6));
+      }
+      counter.style.color=mix(C.paper,C.sun,cc);
+      counter.style.textShadow=cc>0?`0 0 calc(var(--u)*2.5) rgba(255,210,63,${(0.35*cc).toFixed(3)})`:"none";
+      setT(counter,{ax:0,s:cs,o:tw(t,1100,250,OUT)*(1-leave),dx:4*leave});
+
+      // question words
+      qWords.forEach((w,i)=>{
+        const p=tw(t,3200+i*120,500,OUT);
+        w.style.transform=`translateY(${(110*(1-p)).toFixed(2)}%)`;
+      });
+      setT(q1,{ax:0,o:(t>=3200?1:0)*(1-leave),dx:4*leave});
+      setT(q2,{ax:0,o:(t>=3200?1:0)*(1-leave),dx:4*leave});
+
+      // chip "흙?" — appear, strike, shake, dim
+      const cp=tw(t,4000,300,BACK);
+      const shake=t>=4700&&t<4940?0.6*Math.sin(2*Math.PI*3*(t-4700)/240):0;
+      const dim=lerp(1,0.35,tw(t,4700,200));
+      setT(chip,{s:Math.max(0,cp),o:(t>=4000?1:0)*dim*(1-leave),dx:shake+4*leave});
+      strike.style.transform=`rotate(-7deg) scaleX(${tw(t,4500,200,OUT).toFixed(4)})`;
+    }
+
+    /* ----- scenes 3–4 ----- */
+    const s3on=t>=6000&&t<12750;
+    showS(g3,s3on); show($("s3t"),t>=6500&&t<12750);
+    if(s3on){
+      showS(bg3,t>=6100);
+      const cp=tw(t,6000,800,OUT);
+      cells.setAttribute("opacity",cp.toFixed(3));
+      const cs=lerp(1.3,1,cp)*(1+0.012*tw(t,6800,5400));
+      cells.setAttribute("transform",`translate(50 28.125) scale(${cs.toFixed(4)}) translate(-50 -28.125)`);
+
+      // pulse
+      const ph=pulsePhase(t);
+      const pulse=(t>=PT0&&t<=PT1)?0.04*(1-Math.cos(2*Math.PI*ph))/2:0;
+      const appear=Math.max(0,tw(t,6300,600,BACK));
+      let comp=1;
+      if(t>=10280&&t<10400) comp=lerp(1,0.7,tw(t,10280,120,IN));
+      else if(t>=10400){
+        const q=clamp((t-10400)/500);
+        comp=q<0.35?lerp(0.7,1.15,OUT(q/0.35)):lerp(1.15,1,BACK((q-0.35)/0.65));
+      }
+      const idle=t>10900?0.012*Math.sin((t-10900)*0.004):0;
+      const chs=appear*(1+pulse)*comp*(1+idle);
+      chlG.setAttribute("transform",`translate(${CX} ${CY}) scale(${chs.toFixed(4)})`);
+      chlBody.setAttribute("transform",`rotate(${(Math.sin(t*0.0011)*2.5).toFixed(3)})`);
+
+      // glow behind
+      let go=0.9*tw(t,PT0,PT1-PT0);
+      go*=(1+pulse*4);
+      if(t>=10400) go=lerp(0.9,0.38,tw(t,10400,900,OUT))*(1+idle*3);
+      glow.setAttribute("opacity",clamp(go).toFixed(3));
+      glow.setAttribute("r",(24*(t>=10280?comp:1)).toFixed(3));
+
+      // beams
+      const fadeIn=1-tw(t,10400,200);
+      beamG.setAttribute("opacity",fadeIn.toFixed(3));
+      beams.forEach((b,i)=>{
+        const p=tw(t,6900+i*60,400,OUT);
+        const x2=(b.ex*p).toFixed(3), y2=(b.ey*p).toFixed(3);
+        [b.halo,b.core,b.flow].forEach(l=>{l.setAttribute("x2",x2);l.setAttribute("y2",y2);});
+        const on=p>0.001?1:0;
+        b.halo.setAttribute("opacity",on*(0.8+0.2*Math.sin(t*0.006+i)));
+        b.core.setAttribute("opacity",on);
+        b.flow.setAttribute("opacity",on);
+        b.flow.setAttribute("stroke-dashoffset",(-t*0.03-i*1.3).toFixed(2));
+      });
+
+      // water: arc from bottom-left
+      water.forEach((w,i)=>{
+        const s=7700+i*80, p=tw(t,s,900,IN);
+        if(t<s||t>=s+900){w.el.setAttribute("opacity",0);return;}
+        const x=qbez(8+w.jx,w.cx,CX,p), y=qbez(56+w.jy,w.cy,CY,p);
+        w.el.setAttribute("cx",x.toFixed(3)); w.el.setAttribute("cy",y.toFixed(3));
+        w.el.setAttribute("opacity",clamp((t-s)/90).toFixed(3));
+      });
+      // CO2: from the right
+      co2.forEach((m,i)=>{
+        const s=8500+i*80, p=tw(t,s,900,IN);
+        if(t<s||t>=s+900){m.el.setAttribute("opacity",0);return;}
+        const x=qbez(100,m.cx,CX,p), y=qbez(20,m.cy,CY,p);
+        m.el.setAttribute("transform",`translate(${x.toFixed(3)} ${y.toFixed(3)}) rotate(${(m.rot0+m.spin*(t-s)/1000).toFixed(2)})`);
+        m.el.setAttribute("opacity",clamp((t-s)/90).toFixed(3));
+      });
+
+      // shock rings
+      const rp=tw(t,10400,800,OUT);
+      ring.setAttribute("r",lerp(6,60,rp).toFixed(3));
+      ring.setAttribute("opacity",(t>=10400?1-rp:0).toFixed(3));
+      ring.setAttribute("stroke-width",(0.4+0.4*(1-rp)).toFixed(3));
+      const rp2=tw(t,10480,900,OUT);
+      ring2.setAttribute("r",lerp(5,42,rp2).toFixed(3));
+      ring2.setAttribute("opacity",(t>=10480?0.7*(1-rp2):0).toFixed(3));
+
+      // glucose
+      const gp=tw(t,10450,700,OUT);
+      gluG.setAttribute("opacity",t>=10450?1:0);
+      gluG.setAttribute("transform",`translate(${lerp(CX,24,gp).toFixed(3)} ${CY+(t>11150?Math.sin((t-11150)*0.003)*0.35:0)}) rotate(${(lerp(-180,0,gp)+(t>11150?(t-11150)*0.006:0)).toFixed(2)}) scale(${gp.toFixed(4)})`);
+
+      // oxygen bubbles
+      bubbles.forEach((b,i)=>{
+        const s=10450+i*30, p=tw(t,s,700,OUT);
+        if(t<s){b.el.setAttribute("opacity",0);return;}
+        const drift=t>s+700?0.5*(t-s-700)/1000:0;
+        const x=lerp(CX,b.tx,p)+Math.sin(t*0.003+b.ph)*b.wob*p;
+        const y=lerp(CY,b.ty,p)-drift;
+        b.el.setAttribute("cx",x.toFixed(3)); b.el.setAttribute("cy",y.toFixed(3));
+        b.el.setAttribute("opacity",clamp((t-s)/80).toFixed(3));
+      });
+
+      // labels
+      setT(capChl,{o:tw(t,6600,300,OUT),dy:0.6*(1-tw(t,6600,300,OUT))});
+      const lab=(el,s,endFade)=>{
+        const p=tw(t,s,350,BACK);
+        const o=clamp((t-s)/350)*(endFade?1-tw(t,10400,200):1);
+        setT(el,{s:t<s?0.6:lerp(0.6,1,p),o:t<s?0:o});
+      };
+      lab(lLight,6900,true); lab(lWater,7700,true); lab(lCO2,8500,true);
+      lab(lGlu,10700,false); lab(lO2,10750,false);
+
+      // equation
+      setT(eq,{o:t>=11000?1:0});
+      eqToks.forEach((w,i)=>{
+        const p=tw(t,11000+i*70,400,OUT);
+        w.style.transform=`translateY(${(100*(1-p)).toFixed(2)}%)`;
+      });
+    }
+
+    // flash (0→1 in 80, →0 in 420)
+    let fo=0;
+    if(t>=10400&&t<10900) fo=t<10480?(t-10400)/80:1-OUT((t-10480)/420);
+    flash.style.opacity=clamp(fo).toFixed(3);
+    show(flash,fo>0);
+
+    /* ----- scene 5 ----- */
+    const wp=tw(t,12200,500,INOUT);
+    show(wipe,t>=12200);
+    wipe.style.transform=`translateX(${lerp(-130,0,wp).toFixed(3)}%) skewX(-12deg)`;
+    show(title,t>=12500); show(sub,t>=13050);
+    if(t>=12500){
+      const ts=1+0.04*tw(t,12550,2050);
+      title.style.transform=`translate(-50%,-50%) scale(${ts.toFixed(4)})`;
+      glyphs.forEach((g,i)=>{
+        const p=tw(t,12550+i*90,700,OUT);
+        g.style.transform=`translateY(${(120*(1-p)).toFixed(2)}%) rotate(${(8*(1-p)).toFixed(3)}deg)`;
+      });
+      const sp=tw(t,13100,500,OUT);
+      setT(sub,{o:sp,dy:2*(1-sp)});
+    }
+
+    /* ----- ending / loop ----- */
+    night.style.opacity=(t<30?1:tw(t,14600,400,IN)).toFixed(3);
+
+    // living film grain
+    const f=Math.floor(t/50);
+    grain.style.transform=`translate(${(f*37%100)/4}%,${(f*61%100)/4}%)`;
+  }
+
+  /* ---------- clock ---------- */
+  const DUR=15000;
+  const qs=new URLSearchParams(location.search);
+  const fixed=qs.has("t")?Number(qs.get("t")):null;
+  let t0=null, paused=false, pauseAt=0;
+  render(fixed??0);
+  if(fixed!==null) return;
+
+  function frame(now){
+    if(t0===null) t0=now;
+    const t=paused?pauseAt:(now-t0)%DUR;
+    render(t);
+    requestAnimationFrame(frame);
+  }
+  addEventListener("keydown",e=>{
+    if(e.code==="Space"){e.preventDefault();
+      const now=performance.now();
+      if(!paused){pauseAt=(now-t0)%DUR;paused=true;}
+      else{t0=now-pauseAt;paused=false;}
+    }
+  });
+  addEventListener("click",()=>{t0=performance.now();paused=false;});
+
+  const fontsReady=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();
+  Promise.race([fontsReady,new Promise(r=>setTimeout(r,1500))]).then(()=>requestAnimationFrame(frame));
+})();
+</script>
+</body>
+</html>
