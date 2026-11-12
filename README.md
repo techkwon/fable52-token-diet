@@ -3,6 +3,7 @@
 누구나쉽게 10편 「Fable 5.2 토큰 확 줄이는 법, 제가 추천한 방법은 꼴찌였어요」의 실험 자료입니다.
 
 - 페이지: https://techkwon.github.io/fable52-token-diet/
+- 영상: https://youtu.be/Np-CMJeJOD8 (2026-11-13 19:00 공개)
 - 과제 2개(쇼릴, 중학교 광합성 수업 오프닝 15초) × 방법 6개
   - Fable 5.2 effort high (기준) / Fable 5.2 effort low / Opus 5.5 혼자
   - Fable 5.2가 설계도(DESIGN.md)만 쓰고 Opus 5.5 · Sonnet 5.5 · GPT-6.1 Sol이 구현
